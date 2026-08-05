@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Toast from 'primevue/toast'
 import { useAuth } from './stores/auth.js'
 import AppHeader from './components/AppHeader.vue'
 
@@ -11,5 +12,6 @@ const auth = useAuth()
     <main class="flex-1">
       <RouterView />
     </main>
+    <Toast position="bottom-center" />
   </div>
 </template>
