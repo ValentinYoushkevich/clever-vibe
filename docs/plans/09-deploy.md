@@ -20,7 +20,7 @@
 - Create: `web/nginx.conf`
 - Create: `.dockerignore`
 
-- [ ] **Step 1: .dockerignore**
+- [x] **Step 1: .dockerignore**
 
 ```dockerignore
 node_modules
@@ -32,7 +32,7 @@ docs
 **/.env
 ```
 
-- [ ] **Step 2: Dockerfile бэкенда**
+- [x] **Step 2: Dockerfile бэкенда**
 
 `server/Dockerfile` (контекст сборки — корень репозитория):
 
@@ -51,7 +51,7 @@ EXPOSE 3000
 CMD ["node", "dist/index.js"]
 ```
 
-- [ ] **Step 3: Dockerfile фронта и nginx**
+- [x] **Step 3: Dockerfile фронта и nginx**
 
 `web/nginx.conf`:
 
@@ -84,7 +84,7 @@ COPY web/nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 ```
 
-- [ ] **Step 4: Локальная проверка (если установлен Docker; иначе положиться на сборку Northflank)**
+- [x] **Step 4: Локальная проверка (если установлен Docker; иначе положиться на сборку Northflank)**
 
 ```powershell
 docker build -f server/Dockerfile -t cv-server .
@@ -93,7 +93,7 @@ docker build -f web/Dockerfile --build-arg VITE_API_URL=http://localhost:3000 -t
 
 Expected: обе сборки завершаются без ошибок.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add server/Dockerfile web/Dockerfile web/nginx.conf .dockerignore

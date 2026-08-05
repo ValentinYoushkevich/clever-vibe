@@ -16,7 +16,7 @@
 - Create: `server/src/lib/aggregate.ts`
 - Test: `server/test/aggregate.spec.ts`
 
-- [ ] **Step 1: Падающий тест**
+- [x] **Step 1: Падающий тест**
 
 `server/test/aggregate.spec.ts`:
 
@@ -112,11 +112,11 @@ describe('round1', () => {
 })
 ```
 
-- [ ] **Step 2: Убедиться, что падает**
+- [x] **Step 2: Убедиться, что падает**
 
 Run: `npx vitest run -r server` → FAIL
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `server/src/lib/aggregate.ts`:
 
@@ -243,7 +243,7 @@ export function spreadByApproach(entries: AggEntry[]): SpreadRow[] {
 }
 ```
 
-- [ ] **Step 4: Тесты зелёные + Commit**
+- [x] **Step 4: Тесты зелёные + Commit**
 
 Run: `npx vitest run -r server` → PASS
 
@@ -261,7 +261,7 @@ git commit -m "feat(server): dashboard aggregates (TDD)"
 - Modify: `server/src/app.ts`
 - Test: `server/test/dashboard.spec.ts`
 
-- [ ] **Step 1: Падающий тест**
+- [x] **Step 1: Падающий тест**
 
 `server/test/dashboard.spec.ts`:
 
@@ -326,11 +326,11 @@ describe('GET /api/dashboard/approaches/:id/entries', () => {
 })
 ```
 
-- [ ] **Step 2: Убедиться, что падает**
+- [x] **Step 2: Убедиться, что падает**
 
 Run: `npx vitest run -r server` → FAIL (404)
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `server/src/routes/dashboard.ts`:
 
@@ -394,7 +394,7 @@ export async function dashboardRoutes(app: FastifyInstance) {
 
 В `server/src/app.ts`: `app.register(dashboardRoutes)`.
 
-- [ ] **Step 4: Тесты зелёные + Commit**
+- [x] **Step 4: Тесты зелёные + Commit**
 
 Run: `npx vitest run -r server` → PASS
 
@@ -411,7 +411,7 @@ git commit -m "feat(server): dashboard routes with author anonymity"
 - Create: `web/src/lib/quadrant.ts`
 - Test: `web/test/quadrant.spec.ts`
 
-- [ ] **Step 1: Падающий тест**
+- [x] **Step 1: Падающий тест**
 
 `web/test/quadrant.spec.ts`:
 
@@ -437,11 +437,11 @@ describe('quadrant helpers (ТЗ §3.4, виджет 1)', () => {
 })
 ```
 
-- [ ] **Step 2: Убедиться, что падает**
+- [x] **Step 2: Убедиться, что падает**
 
 Run: `npx vitest run -r web` → FAIL
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `web/src/lib/quadrant.ts`:
 
@@ -464,7 +464,7 @@ export function median(xs: number[]): number {
 }
 ```
 
-- [ ] **Step 4: Тесты зелёные + Commit**
+- [x] **Step 4: Тесты зелёные + Commit**
 
 Run: `npx vitest run -r web` → PASS
 
@@ -481,7 +481,7 @@ git commit -m "feat(web): quadrant helpers (TDD)"
 - Create: `web/src/api/dashboardTypes.ts`
 - Create: `web/src/components/dashboard/EntriesDrawer.vue`
 
-- [ ] **Step 1: Типы ответа**
+- [x] **Step 1: Типы ответа**
 
 `web/src/api/dashboardTypes.ts`:
 
@@ -522,7 +522,7 @@ export interface AnonEntry {
 }
 ```
 
-- [ ] **Step 2: Панель записей (drawer 520px, без автора)**
+- [x] **Step 2: Панель записей (drawer 520px, без автора)**
 
 `web/src/components/dashboard/EntriesDrawer.vue`:
 
@@ -579,7 +579,7 @@ watch(
 </template>
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```powershell
 git add web/src/api/dashboardTypes.ts web/src/components/dashboard/EntriesDrawer.vue
@@ -596,7 +596,7 @@ git commit -m "feat(web): dashboard types and anonymous entries drawer"
 - Create: `web/src/components/dashboard/TrendCard.vue`
 - Create: `web/src/components/dashboard/SpreadCard.vue`
 
-- [ ] **Step 1: Виджет 1 — квадранты**
+- [x] **Step 1: Виджет 1 — квадранты**
 
 `web/src/components/dashboard/QuadrantChart.vue`:
 
@@ -669,7 +669,7 @@ const corners = [
 </template>
 ```
 
-- [ ] **Step 2: Виджет 2 — покрытие стадий**
+- [x] **Step 2: Виджет 2 — покрытие стадий**
 
 `web/src/components/dashboard/StageCoverageCard.vue`:
 
@@ -710,7 +710,7 @@ const LOW = 5
 </template>
 ```
 
-- [ ] **Step 3: Виджет 3 — динамика средней пользы**
+- [x] **Step 3: Виджет 3 — динамика средней пользы**
 
 `web/src/components/dashboard/TrendCard.vue`:
 
@@ -769,7 +769,7 @@ const polyline = computed(() =>
 </template>
 ```
 
-- [ ] **Step 4: Виджет 4 — разброс между участниками**
+- [x] **Step 4: Виджет 4 — разброс между участниками**
 
 `web/src/components/dashboard/SpreadCard.vue`:
 
@@ -816,7 +816,7 @@ const pct = (v: number) => ((v - 1) / 4) * 100
 </template>
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add web/src/components/dashboard
@@ -831,7 +831,7 @@ git commit -m "feat(web): dashboard widgets 1-4"
 - Create: `web/src/components/dashboard/ApproachesTable.vue`
 - Modify: `web/src/views/DashboardView.vue` (заменить заглушку целиком)
 
-- [ ] **Step 1: Таблица подходов**
+- [x] **Step 1: Таблица подходов**
 
 `web/src/components/dashboard/ApproachesTable.vue`:
 
@@ -924,7 +924,7 @@ const sorted = computed(() =>
 </template>
 ```
 
-- [ ] **Step 2: Сборка экрана**
+- [x] **Step 2: Сборка экрана**
 
 `web/src/views/DashboardView.vue`:
 
@@ -1011,11 +1011,11 @@ onMounted(async () => {
 7. Таблица: сортировка по каждой колонке с индикатором, sticky-заголовок при скролле, охват «n/4», флаг «мало данных».
 8. Войти observer'ом: дашборд доступен, кнопка «Экспорт CSV» на месте, других табов нет.
 
-- [ ] **Step 4: Прогнать все тесты**
+- [x] **Step 4: Прогнать все тесты**
 
 Run: `npx vitest run -r server; npx vitest run -r web` → PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add web/src
