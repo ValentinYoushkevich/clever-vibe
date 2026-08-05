@@ -16,7 +16,7 @@
 - Create: `web/src/assets/themes.css` (копия `docs/design/tokens/themes.css`)
 - Modify: `web/src/style.css`
 
-- [ ] **Step 1: Скопировать токен-шит**
+- [x] **Step 1: Скопировать токен-шит**
 
 ```powershell
 Copy-Item docs/design/tokens/themes.css web/src/assets/themes.css
@@ -24,7 +24,7 @@ Copy-Item docs/design/tokens/themes.css web/src/assets/themes.css
 
 Файл не редактировать — при обновлении дизайна он перезаписывается копией.
 
-- [ ] **Step 2: style.css — импорты, база, UI-классы**
+- [x] **Step 2: style.css — импорты, база, UI-классы**
 
 `web/src/style.css` (заменить целиком):
 
@@ -120,11 +120,11 @@ Copy-Item docs/design/tokens/themes.css web/src/assets/themes.css
 }
 ```
 
-- [ ] **Step 3: Проверка в браузере**
+- [x] **Step 3: Проверка в браузере**
 
 Run: `npm run dev:web` → тёмный фон `#161826`, текст Inter.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```powershell
 git add web/src/assets/themes.css web/src/style.css
@@ -139,7 +139,7 @@ git commit -m "feat(web): design tokens, Inter local, base component classes"
 - Create: `web/src/lib/theme.ts`
 - Test: `web/test/theme.spec.ts`
 
-- [ ] **Step 1: Падающий тест**
+- [x] **Step 1: Падающий тест**
 
 `web/test/theme.spec.ts`:
 
@@ -180,12 +180,12 @@ describe('theme', () => {
 })
 ```
 
-- [ ] **Step 2: Убедиться, что падает**
+- [x] **Step 2: Убедиться, что падает**
 
 Run: `npx vitest run -r web`
 Expected: FAIL — `Cannot find module '../src/lib/theme.js'`
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `web/src/lib/theme.ts`:
 
@@ -214,12 +214,12 @@ export function applyTheme(code: ThemeCode): void {
 }
 ```
 
-- [ ] **Step 4: Тесты зелёные**
+- [x] **Step 4: Тесты зелёные**
 
 Run: `npx vitest run -r web`
 Expected: PASS (4 passed)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add web/src/lib/theme.ts web/test/theme.spec.ts
@@ -233,7 +233,7 @@ git commit -m "feat(web): theme logic with persistence (TDD)"
 **Files:**
 - Modify: `web/index.html`
 
-- [ ] **Step 1: Инлайн-скрипт до бандла**
+- [x] **Step 1: Инлайн-скрипт до бандла**
 
 В `web/index.html` внутрь `<head>` (до `<script type="module">`):
 
@@ -250,11 +250,11 @@ git commit -m "feat(web): theme logic with persistence (TDD)"
 </script>
 ```
 
-- [ ] **Step 2: Проверка в браузере**
+- [x] **Step 2: Проверка в браузере**
 
 В DevTools: `localStorage.setItem('aiTrackerTheme', 'mint')` → жёсткая перезагрузка (Ctrl+Shift+R). Страница сразу светлая, без тёмного кадра.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```powershell
 git add web/index.html
@@ -271,7 +271,7 @@ git commit -m "feat(web): apply saved theme before first paint"
 - Modify: `web/src/main.ts`
 - Modify: `web/src/App.vue` (временно, до шапки из плана 03)
 
-- [ ] **Step 1: Пресет PrimeVue на переменных**
+- [x] **Step 1: Пресет PrimeVue на переменных**
 
 `web/src/theme/primevuePreset.ts`:
 
@@ -306,7 +306,7 @@ export const CleverVibePreset = definePreset(Aura, {
 })
 ```
 
-- [ ] **Step 2: Подключить в main.ts**
+- [x] **Step 2: Подключить в main.ts**
 
 `web/src/main.ts` (заменить целиком):
 
@@ -334,7 +334,7 @@ app.use(ToastService)
 app.mount('#app')
 ```
 
-- [ ] **Step 3: Компонент селектора темы**
+- [x] **Step 3: Компонент селектора темы**
 
 `web/src/components/ThemeSelect.vue`:
 
@@ -368,7 +368,7 @@ function onChange(e: Event) {
 </template>
 ```
 
-- [ ] **Step 4: Временный показ в App.vue**
+- [x] **Step 4: Временный показ в App.vue**
 
 `web/src/App.vue` (заменить целиком; план 03 заменит на роутер и шапку):
 
@@ -398,7 +398,7 @@ import ThemeSelect from './components/ThemeSelect.vue'
 </template>
 ```
 
-- [ ] **Step 5: Проверка в браузере**
+- [x] **Step 5: Проверка в браузере**
 
 Run: `npm run dev:web`. Переключить все три темы селектором:
 - `nocturne` — тёмный сине-серый фон, blurple-акцент;
@@ -409,7 +409,7 @@ Run: `npm run dev:web`. Переключить все три темы селек
 Run: `npx vitest run -r web`
 Expected: PASS (smoke-тест App может потребовать обновления: заменить проверку текста на `expect(w.find('h1').text()).toBe('Clever Vibe')`).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add web/src

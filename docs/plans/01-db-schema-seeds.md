@@ -19,14 +19,14 @@
 - Modify: `server/src/index.ts`
 - Modify: `server/.env` (локально, не коммитится)
 
-- [ ] **Step 1: Установить Prisma**
+- [x] **Step 1: Установить Prisma**
 
 ```powershell
 npm i -w server @prisma/client
 npm i -w server -D prisma
 ```
 
-- [ ] **Step 2: Схема**
+- [x] **Step 2: Схема**
 
 `server/prisma/schema.prisma`:
 
@@ -122,16 +122,16 @@ model Entry {
 }
 ```
 
-- [ ] **Step 3: Локальное окружение**
+- [x] **Step 3: Локальное окружение**
 
 Скопировать `server/.env.example` → `server/.env`, вписать реальные строки Neon (создать бесплатный проект на neon.tech, взять `DATABASE_URL` — pooled и `DIRECT_URL` — direct). Для чисто локальной разработки допустим локальный PostgreSQL — обе переменные указывают на него.
 
-- [ ] **Step 4: Миграция**
+- [x] **Step 4: Миграция**
 
 Run: `npx prisma migrate dev --name init` (из каталога `server/`)
 Expected: `Your database is now in sync with your schema` + сгенерирован клиент.
 
-- [ ] **Step 5: Подключить клиент в приложение**
+- [x] **Step 5: Подключить клиент в приложение**
 
 `server/src/prisma.ts`:
 
@@ -156,12 +156,12 @@ import { prisma } from './prisma.js'
 const app = buildApp({ prisma })
 ```
 
-- [ ] **Step 6: Тесты и запуск**
+- [x] **Step 6: Тесты и запуск**
 
 Run: `npx vitest run -r server`
 Expected: PASS (тест health из плана 00 не сломался)
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```powershell
 git add server
@@ -176,7 +176,7 @@ git commit -m "feat(server): prisma schema for User/Stage/Approach/Tool/Entry + 
 - Create: `server/prisma/seedData.ts`
 - Create: `server/test/seedData.spec.ts`
 
-- [ ] **Step 1: Написать падающий тест целостности**
+- [x] **Step 1: Написать падающий тест целостности**
 
 `server/test/seedData.spec.ts`:
 
@@ -213,12 +213,12 @@ describe('seedData', () => {
 })
 ```
 
-- [ ] **Step 2: Убедиться, что тест падает**
+- [x] **Step 2: Убедиться, что тест падает**
 
 Run: `npx vitest run -r server`
 Expected: FAIL — `Cannot find module '../prisma/seedData.js'`
 
-- [ ] **Step 3: Реализовать seedData**
+- [x] **Step 3: Реализовать seedData**
 
 `server/prisma/seedData.ts`:
 
@@ -319,12 +319,12 @@ export const TOOLS = [
 ]
 ```
 
-- [ ] **Step 4: Убедиться, что тесты проходят**
+- [x] **Step 4: Убедиться, что тесты проходят**
 
 Run: `npx vitest run -r server`
 Expected: PASS (5 тестов seedData + health)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add server/prisma/seedData.ts server/test/seedData.spec.ts
@@ -339,7 +339,7 @@ git commit -m "feat(server): seed data for stages, approaches, tools"
 - Create: `server/prisma/seed.ts`
 - Modify: `server/package.json`
 
-- [ ] **Step 1: Скрипт**
+- [x] **Step 1: Скрипт**
 
 `server/prisma/seed.ts`:
 
@@ -406,7 +406,7 @@ async function main() {
 main().finally(() => prisma.$disconnect())
 ```
 
-- [ ] **Step 2: Зарегистрировать в package.json**
+- [x] **Step 2: Зарегистрировать в package.json**
 
 В `server/package.json` добавить на верхний уровень:
 
@@ -416,7 +416,7 @@ main().finally(() => prisma.$disconnect())
 }
 ```
 
-- [ ] **Step 3: Прогнать сид дважды (идемпотентность)**
+- [x] **Step 3: Прогнать сид дважды (идемпотентность)**
 
 Run (из `server/`): `npx prisma db seed`
 Expected: `Seed done`
@@ -424,11 +424,11 @@ Expected: `Seed done`
 Run повторно: `npx prisma db seed`
 Expected: снова `Seed done`, без ошибок уникальности.
 
-- [ ] **Step 4: Проверить данные**
+- [x] **Step 4: Проверить данные**
 
 Run (из `server/`): `npx prisma studio` → таблицы Stage (9 строк), Approach (41), Tool (4), User (1 админ).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add server/prisma/seed.ts server/package.json
