@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
-  round1, median, approachStats, stageCoverage, monthlySeries, spreadByApproach,
+  round1, median, approachStats, stageCoverage, trendSeries, spreadByApproach,
 } from '../src/lib/aggregate.js'
 import type { AggEntry } from '../src/lib/aggregate.js'
 
@@ -55,17 +55,70 @@ describe('stageCoverage (виджет 2)', () => {
   })
 })
 
-describe('monthlySeries (виджет 3)', () => {
-  it('среднее по месяцам, суммарно и по стадиям', () => {
-    const rows = monthlySeries([
-      e({ usefulness: 4 }),
-      e({ usefulness: 2, createdAt: new Date('2026-09-01T10:00:00Z') }),
-      e({ usefulness: 4, createdAt: new Date('2026-09-02T10:00:00Z') }),
-    ])
+describe('trendSeries (виджет 3: динамика с выбором периода)', () => {
+  it('месяц — среднее по месяцам, суммарно и по стадиям', () => {
+    const rows = trendSeries(
+      [
+        e({ usefulness: 4 }),
+        e({ usefulness: 2, createdAt: new Date('2026-09-01T10:00:00Z') }),
+        e({ usefulness: 4, createdAt: new Date('2026-09-02T10:00:00Z') }),
+      ],
+      'month',
+    )
     expect(rows).toEqual([
-      { month: '2026-08', total: { n: 1, avg: 4 }, byStage: { code: { n: 1, avg: 4 } } },
-      { month: '2026-09', total: { n: 2, avg: 3 }, byStage: { code: { n: 2, avg: 3 } } },
+      { key: '2026-08', label: 'Август', total: { n: 1, avg: 4 }, byStage: { code: { n: 1, avg: 4 } } },
+      { key: '2026-09', label: 'Сентябрь', total: { n: 2, avg: 3 }, byStage: { code: { n: 2, avg: 3 } } },
     ])
+  })
+
+  it('неделя — точки по ISO-неделям (понедельник), подпись «д.мм»', () => {
+    const rows = trendSeries(
+      [
+        e({ usefulness: 5, createdAt: new Date('2026-08-05T10:00:00Z') }), // среда недели 3–9 авг
+        e({ usefulness: 3, createdAt: new Date('2026-08-09T22:00:00Z') }), // воскресенье той же недели
+        e({ usefulness: 2, createdAt: new Date('2026-08-10T08:00:00Z') }), // понедельник следующей
+      ],
+      'week',
+    )
+    expect(rows.map((r) => [r.key, r.label, r.total.n])).toEqual([
+      ['2026-08-03', '3.08', 2],
+      ['2026-08-10', '10.08', 1],
+    ])
+    expect(rows[0].total.avg).toBe(4)
+  })
+
+  it('день — точка на календарный день, подпись «д.мм»', () => {
+    const rows = trendSeries(
+      [
+        e({ usefulness: 5, createdAt: new Date('2026-08-05T08:00:00Z') }),
+        e({ usefulness: 3, createdAt: new Date('2026-08-05T20:00:00Z') }),
+        e({ usefulness: 2, createdAt: new Date('2026-08-06T09:00:00Z') }),
+      ],
+      'day',
+    )
+    expect(rows.map((r) => [r.key, r.label, r.total.n, r.total.avg])).toEqual([
+      ['2026-08-05', '5.08', 2, 4],
+      ['2026-08-06', '6.08', 1, 2],
+    ])
+  })
+
+  it('весь пилот — одна точка со средним за всё время', () => {
+    const rows = trendSeries(
+      [
+        e({ usefulness: 4 }),
+        e({ usefulness: 2, createdAt: new Date('2026-09-01T10:00:00Z') }),
+      ],
+      'all',
+    )
+    expect(rows).toEqual([
+      { key: 'all', label: 'Весь пилот', total: { n: 2, avg: 3 }, byStage: { code: { n: 2, avg: 3 } } },
+    ])
+  })
+
+  it('без записей возвращает пустой ряд в любом периоде', () => {
+    for (const bucket of ['day', 'week', 'month', 'all'] as const) {
+      expect(trendSeries([], bucket)).toEqual([])
+    }
   })
 })
 

@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import {
-  approachStats, stageCoverage, monthlySeries, spreadByApproach, type AggEntry,
+  approachStats, stageCoverage, trendSeries, spreadByApproach, type AggEntry,
 } from '../lib/aggregate.js'
 
 export async function dashboardRoutes(app: FastifyInstance) {
@@ -29,7 +29,13 @@ export async function dashboardRoutes(app: FastifyInstance) {
       teamSize, // знаменатель охвата n/4 (допущение №5)
       approaches: approachStats(agg),
       stages: stageCoverage(stages, agg),
-      monthly: monthlySeries(agg),
+      // Динамика с выбором периода: дни / недели / месяцы / одна точка за весь пилот
+      trend: {
+        day: trendSeries(agg, 'day'),
+        week: trendSeries(agg, 'week'),
+        month: trendSeries(agg, 'month'),
+        all: trendSeries(agg, 'all'),
+      },
       spread: spreadByApproach(agg),
     }
   })

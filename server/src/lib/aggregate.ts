@@ -69,16 +69,48 @@ export function stageCoverage(
     }))
 }
 
-export interface MonthPoint {
-  month: string
+export interface TrendPoint {
+  key: string
+  label: string // готовая подпись под точкой: «Август», «3.08», «Весь пилот»
   total: { n: number; avg: number }
   byStage: Record<string, { n: number; avg: number }>
 }
 
-export function monthlySeries(entries: AggEntry[]): MonthPoint[] {
-  return [...groupBy(entries, (e) => e.createdAt.toISOString().slice(0, 7)).entries()]
-    .map(([month, list]) => ({
-      month,
+export type TrendBucket = 'day' | 'week' | 'month' | 'all'
+
+const MONTHS_RU = [
+  'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+  'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
+]
+
+// Понедельник ISO-недели в формате YYYY-MM-DD (UTC — как и все даты в агрегатах)
+function weekStart(d: Date): string {
+  const x = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
+  const shift = (x.getUTCDay() + 6) % 7 // понедельник = 0
+  x.setUTCDate(x.getUTCDate() - shift)
+  return x.toISOString().slice(0, 10)
+}
+
+function bucketKey(e: AggEntry, bucket: TrendBucket): string {
+  const iso = e.createdAt.toISOString()
+  if (bucket === 'all') return 'all'
+  if (bucket === 'day') return iso.slice(0, 10)
+  if (bucket === 'week') return weekStart(e.createdAt)
+  return iso.slice(0, 7)
+}
+
+function bucketLabel(key: string, bucket: TrendBucket): string {
+  if (bucket === 'all') return 'Весь пилот'
+  if (bucket === 'month') return MONTHS_RU[Number(key.slice(5, 7)) - 1]
+  const [, m, d] = key.split('-')
+  return `${Number(d)}.${m}` // день или начало недели, «3.08»
+}
+
+export function trendSeries(entries: AggEntry[], bucket: TrendBucket): TrendPoint[] {
+  return [...groupBy(entries, (e) => bucketKey(e, bucket)).entries()]
+    .map(([key, list]) => ({
+      key,
+      label: bucketLabel(key, bucket),
       total: { n: list.length, avg: round1(avg(list.map((e) => e.usefulness))) },
       byStage: Object.fromEntries(
         [...groupBy(list, (e) => e.stage.code).entries()].map(([code, ls]) => [
@@ -87,7 +119,7 @@ export function monthlySeries(entries: AggEntry[]): MonthPoint[] {
         ]),
       ),
     }))
-    .sort((a, b) => a.month.localeCompare(b.month))
+    .sort((a, b) => a.key.localeCompare(b.key))
 }
 
 export interface SpreadRow {

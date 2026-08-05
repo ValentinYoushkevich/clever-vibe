@@ -10,16 +10,21 @@ export interface ApproachStat {
   lowData: boolean
 }
 
+export type TrendBucket = 'day' | 'week' | 'month' | 'all'
+
+export interface TrendPoint {
+  key: string
+  label: string // подпись под точкой приходит с сервера: «Август», «3.08», «Весь пилот»
+  total: { n: number; avg: number }
+  byStage: Record<string, { n: number; avg: number }>
+}
+
 export interface DashboardData {
   totalEntries: number
   teamSize: number
   approaches: ApproachStat[]
   stages: { code: string; title: string; n: number }[]
-  monthly: {
-    month: string
-    total: { n: number; avg: number }
-    byStage: Record<string, { n: number; avg: number }>
-  }[]
+  trend: Record<TrendBucket, TrendPoint[]>
   spread: { approachId: string; title: string; n: number; min: number; max: number; delta: number }[]
 }
 

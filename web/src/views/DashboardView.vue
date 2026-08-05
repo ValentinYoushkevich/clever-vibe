@@ -84,7 +84,7 @@ onMounted(async () => {
       />
       <div class="flex flex-col gap-(--space-6)">
         <StageCoverageCard :stages="data.stages" />
-        <TrendCard :monthly="data.monthly" :stages="data.stages" />
+        <TrendCard :trend="data.trend" :stages="data.stages" />
       </div>
     </div>
 
