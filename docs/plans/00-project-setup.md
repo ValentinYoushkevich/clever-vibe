@@ -17,13 +17,13 @@
 - Create: `.gitignore` (заменить, если есть)
 - Create: `.editorconfig`
 
-- [ ] **Step 1: Создать ветку**
+- [x] **Step 1: Создать ветку**
 
 ```powershell
 git checkout -b develop
 ```
 
-- [ ] **Step 2: Корневой package.json**
+- [x] **Step 2: Корневой package.json**
 
 ```json
 {
@@ -39,7 +39,7 @@ git checkout -b develop
 }
 ```
 
-- [ ] **Step 3: .gitignore**
+- [x] **Step 3: .gitignore**
 
 ```gitignore
 node_modules/
@@ -50,7 +50,7 @@ dist/
 *.local
 ```
 
-- [ ] **Step 4: .editorconfig**
+- [x] **Step 4: .editorconfig**
 
 ```ini
 root = true
@@ -63,7 +63,7 @@ indent_style = space
 indent_size = 2
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add package.json .gitignore .editorconfig
@@ -82,7 +82,7 @@ git commit -m "chore: monorepo skeleton (npm workspaces)"
 - Create: `server/test/app.spec.ts`
 - Create: `server/.env.example`
 
-- [ ] **Step 1: server/package.json**
+- [x] **Step 1: server/package.json**
 
 ```json
 {
@@ -98,14 +98,14 @@ git commit -m "chore: monorepo skeleton (npm workspaces)"
 }
 ```
 
-- [ ] **Step 2: Установить зависимости**
+- [x] **Step 2: Установить зависимости**
 
 ```powershell
 npm i -w server fastify @fastify/cors
 npm i -w server -D typescript tsx vitest @types/node
 ```
 
-- [ ] **Step 3: server/tsconfig.json**
+- [x] **Step 3: server/tsconfig.json**
 
 ```json
 {
@@ -123,7 +123,7 @@ npm i -w server -D typescript tsx vitest @types/node
 }
 ```
 
-- [ ] **Step 4: Написать падающий тест**
+- [x] **Step 4: Написать падающий тест**
 
 `server/test/app.spec.ts`:
 
@@ -141,12 +141,12 @@ describe('app', () => {
 })
 ```
 
-- [ ] **Step 5: Убедиться, что тест падает**
+- [x] **Step 5: Убедиться, что тест падает**
 
 Run: `npx vitest run -r server`
 Expected: FAIL — `Cannot find module '../src/app.js'`
 
-- [ ] **Step 6: Реализовать buildApp**
+- [x] **Step 6: Реализовать buildApp**
 
 `server/src/app.ts`:
 
@@ -207,17 +207,17 @@ ADMIN_LOGIN=admin
 ADMIN_PASSWORD=change-me
 ```
 
-- [ ] **Step 7: Убедиться, что тест проходит**
+- [x] **Step 7: Убедиться, что тест проходит**
 
 Run: `npx vitest run -r server`
 Expected: PASS (1 passed)
 
-- [ ] **Step 8: Проверить dev-запуск**
+- [x] **Step 8: Проверить dev-запуск**
 
 Run: `npm run dev:server`, затем в другом терминале `curl http://localhost:3000/api/health`
 Expected: `{"ok":true}`
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```powershell
 git add server
@@ -233,21 +233,21 @@ git commit -m "feat(server): fastify skeleton with buildApp(deps) and health rou
 - Create: `web/.env.development`
 - Create: `web/vitest.config.ts`, `web/test/smoke.spec.ts`
 
-- [ ] **Step 1: Сгенерировать проект**
+- [x] **Step 1: Сгенерировать проект**
 
 ```powershell
 npm create vite@latest web -- --template vue-ts
 npm i
 ```
 
-- [ ] **Step 2: Зависимости**
+- [x] **Step 2: Зависимости**
 
 ```powershell
 npm i -w web vue-router@4 pinia primevue @primeuix/themes primeicons @fontsource/inter tailwindcss @tailwindcss/vite
 npm i -w web -D vitest happy-dom @vue/test-utils
 ```
 
-- [ ] **Step 3: Подключить Tailwind**
+- [x] **Step 3: Подключить Tailwind**
 
 `web/vite.config.ts`:
 
@@ -267,7 +267,7 @@ export default defineConfig({
 @import 'tailwindcss';
 ```
 
-- [ ] **Step 4: Очистить болванку Vite**
+- [x] **Step 4: Очистить болванку Vite**
 
 Удалить `web/src/components/HelloWorld.vue`, `web/src/assets/vue.svg`, `web/public/vite.svg`.
 
@@ -297,7 +297,7 @@ createApp(App).mount('#app')
 VITE_API_URL=http://localhost:3000
 ```
 
-- [ ] **Step 5: Смоук-тест**
+- [x] **Step 5: Смоук-тест**
 
 `web/vitest.config.ts`:
 
@@ -328,7 +328,7 @@ describe('App', () => {
 
 Добавить в `web/package.json` в `scripts`: `"test": "vitest run"`.
 
-- [ ] **Step 6: Прогнать тест и dev-сервер**
+- [x] **Step 6: Прогнать тест и dev-сервер**
 
 Run: `npx vitest run -r web`
 Expected: PASS (1 passed)
@@ -336,7 +336,7 @@ Expected: PASS (1 passed)
 Run: `npm run dev:web` → открыть http://localhost:5173
 Expected: страница с текстом «Clever Vibe», без ошибок в консоли.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```powershell
 git add web package-lock.json
