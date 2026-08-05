@@ -5,6 +5,9 @@ import { decorateAuth } from './plugins/auth.js'
 import { loginRoutes } from './routes/login.js'
 import { dictionaryRoutes } from './routes/dictionaries.js'
 import { entryRoutes } from './routes/entries.js'
+import { userRoutes } from './routes/users.js'
+import { adminApproachRoutes } from './routes/adminApproaches.js'
+import { exportRoutes } from './routes/exportCsv.js'
 
 export interface Deps {
   prisma: PrismaClient
@@ -18,6 +21,9 @@ export function buildApp(deps: Deps) {
   app.register(loginRoutes)
   app.register(dictionaryRoutes)
   app.register(entryRoutes)
+  app.register(userRoutes)
+  app.register(adminApproachRoutes)
+  app.register(exportRoutes)
   app.get('/api/health', async () => ({ ok: true }))
   return app
 }
