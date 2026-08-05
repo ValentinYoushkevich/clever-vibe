@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../tokens/nocturne-styles.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  i[class^="ph"] { font-size: 1.05em; line-height: 1; }
+  :root { --warn: #c6a377; --warn-dim: #9c8360; --bad: #c68e94; }
+  * { box-sizing: border-box; }
+  button, input, select, textarea { font-family: var(--font-body); }
+  h1, h2 { font-family: var(--font-heading); font-weight: var(--font-heading-weight); }
+  a { color: var(--color-accent-300); text-decoration: none; }
+  a:hover { color: var(--color-accent-200); }
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+  ::selection { background: var(--color-accent-800); color: var(--color-accent-100); }
+  button:disabled { opacity: .45; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--color-neutral-800); border-radius: var(--radius-sm); }
+  ::-webkit-scrollbar-track { background: var(--color-bg); }
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:var(--color-bg)">
+
+  <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:var(--space-8)">
+    <div style="width:360px">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-8)">
+        <div style="width:9px;height:9px;border-radius:50%;background:var(--color-accent)"></div>
+        <span style="font-size:13.5px;font-weight:600">Clever Vibe</span>
+      </div>
+      <h1 style="margin:0 0 var(--space-2);font-size:20px">Вход</h1>
+      <p style="margin:0 0 var(--space-8);font-size:13px;color:var(--color-neutral-400)">Логин и пароль выдаёт тимлид при создании участника.</p>
+      <div style="display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-8);background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg)">
+        <div>
+          <div style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500);margin-bottom:var(--space-2)">Логин</div>
+          <input value="{{ loginValue }}" onChange="{{ setLoginValue }}" onKeyDown="{{ loginKey }}" autoComplete="username" style="width:100%;padding:var(--space-3) var(--space-4);background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:13px;outline:none"></input>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500);margin-bottom:var(--space-2)">Пароль</div>
+          <input value="{{ loginPass }}" onChange="{{ setLoginPass }}" onKeyDown="{{ loginKey }}" type="password" autoComplete="current-password" style="width:100%;padding:var(--space-3) var(--space-4);background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:13px;outline:none"></input>
+        </div>
+        <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:var(--space-2);font-size:12px;color:var(--bad)"><i class="ph ph-warning"></i>{{ loginError }}</div>
+        </sc-if>
+        <button onClick="{{ submitLogin }}" disabled="{{ loginDisabled }}" style="padding:var(--space-4) 0;border:1px solid {{ loginBd }};border-radius:var(--radius-md);background:{{ loginBg }};color:{{ loginFg }};font-size:13.5px;font-weight:500;cursor:pointer">Войти</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);margin-top:var(--space-6)">
+        <span style="font-size:11.5px;color:var(--color-neutral-500)">Демо-доступ: artem / lead-4821 · nikita / dev-7395</span>
+        <select value="{{ theme }}" onChange="{{ setTheme }}" style="padding:var(--space-2);background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-md);color:var(--color-text);font-size:12px;outline:none">
+          <sc-for list="{{ themeOptions }}" as="t" hint-placeholder-count="3">
+            <option value="{{ t.key }}">{{ t.title }}</option>
+          </sc-for>
+        </select>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ authed }}" hint-placeholder-val="{{ false }}">
+  <div style="position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:var(--space-8);padding:0 var(--space-8);height:58px;background:color-mix(in srgb, var(--color-bg) 92%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--color-neutral-800)">
+    <div style="display:flex;align-items:center;gap:var(--space-3);margin-right:8px">
+      <div style="width:9px;height:9px;border-radius:50%;background:var(--color-accent);box-shadow:0 0 12px color-mix(in srgb, var(--color-accent) 55%, transparent)"></div>
+      <span style="font-size:13.5px;font-weight:600;letter-spacing:.01em">Clever Vibe</span>
+      <span style="font-variant-numeric:tabular-nums;font-size:11px;color:var(--color-neutral-500);padding:var(--space-1) var(--space-2);border:1px solid var(--color-neutral-800);border-radius:var(--radius-md)">FE / Angular</span>
+    </div>
+
+    <div style="display:flex;gap:var(--space-1)">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+        <button onClick="{{ t.go }}" style="padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);border:1px solid transparent;font-size:13px;font-weight:500;cursor:pointer;background:{{ t.bg }};color:{{ t.fg }}" style-hover="background:var(--color-neutral-900);color:var(--color-text)">{{ t.title }}</button>
+      </sc-for>
+    </div>
+
+    <div style="flex:1"></div>
+
+    <div style="display:flex;align-items:center;gap:var(--space-2)">
+      <i class="ph ph-palette" style="color:var(--color-neutral-500);font-size:14px"></i>
+      <select value="{{ theme }}" onChange="{{ setTheme }}" style="padding:var(--space-2) var(--space-2);background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-md);color:var(--color-text);font-size:12px;outline:none">
+        <sc-for list="{{ themeOptions }}" as="t" hint-placeholder-count="3">
+          <option value="{{ t.key }}">{{ t.title }}</option>
+        </sc-for>
+      </select>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:var(--space-3)">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;line-height:1.25">
+        <span style="font-size:12.5px;font-weight:500">{{ currentUser }}</span>
+        <span style="font-size:10.5px;color:var(--color-neutral-500)">{{ currentRole }}</span>
+      </div>
+      <button onClick="{{ logout }}" aria-label="Выйти" style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-3);border:1px solid var(--color-neutral-800);border-radius:var(--radius-md);background:transparent;color:var(--color-neutral-400);font-size:12px;cursor:pointer" style-hover="border-color:var(--color-accent-700);color:var(--color-accent)"><i class="ph ph-sign-out"></i>Выйти</button>
+    </div>
+  </div>
+
+  <sc-if value="{{ isEntry }}" hint-placeholder-val="{{ true }}">
+  <div style="padding:var(--space-8) var(--space-8) var(--space-8);max-width:1320px;margin:0 auto">
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:var(--space-8);margin-bottom:20px">
+      <div>
+        <h1 style="margin:0 0 5px;font-size:21px;font-weight:600;letter-spacing:-.01em">Быстрый ввод</h1>
+        <p style="margin:0;font-size:13px;color:var(--color-neutral-400)">Одна запись = одно применение подхода. Цель — 20–30 секунд.</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:var(--space-4)">
+        <span style="font-variant-numeric:tabular-nums;font-size:11px;color:var(--color-neutral-600)">{{ draftLabel }}</span>
+        <div style="display:flex;gap:var(--space-1);padding:var(--space-1);background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-md)">
+          <sc-for list="{{ layoutChips }}" as="l" hint-placeholder-count="3">
+            <button onClick="{{ l.pick }}" style="padding:var(--space-2) var(--space-4);border:0;border-radius:var(--radius-md);font-size:12px;font-weight:500;cursor:pointer;background:{{ l.bg }};color:{{ l.fg }}">{{ l.title }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <sc-if value="{{ isLayoutA }}" hint-placeholder-val="{{ true }}">
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) 336px;gap:var(--space-6);align-items:start">
+      <div style="background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg);padding:var(--space-8) var(--space-8) var(--space-8)">
+
+        <div style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500);margin-bottom:10px">Стадия</div>
+        <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);margin-bottom:22px">
+          <sc-for list="{{ stageChips }}" as="s" hint-placeholder-count="9">
+            <button onClick="{{ s.pick }}" style="padding:var(--space-3) var(--space-4);border-radius:var(--radius-lg);font-size:13px;font-weight:500;cursor:pointer;background:{{ s.bg }};color:{{ s.fg }};border:1px solid {{ s.bd }}">{{ s.title }}</button>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;align-items:baseline;gap:var(--space-3);margin-bottom:10px">
+          <span style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500)">Подход</span>
+          <span style="font-size:11.5px;color:var(--color-neutral-600)">{{ approachHint }}</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);min-height:64px;margin-bottom:22px">
+          <sc-for list="{{ approachChips }}" as="a" hint-placeholder-count="6">
+            <button onClick="{{ a.pick }}" title="{{ a.description }}" style="padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);font-size:13px;cursor:pointer;text-align:left;background:{{ a.bg }};color:{{ a.fg }};border:1px solid {{ a.bd }};display:inline-flex;align-items:center;gap:var(--space-2)"><i class="{{ a.icon }}"></i>{{ a.title }}</button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ isCustom }}" hint-placeholder-val="{{ false }}">
+          <input value="{{ customText }}" onChange="{{ setCustom }}" placeholder="Опишите подход своими словами — лид разберёт раз в месяц" style="width:100%;padding:var(--space-3) var(--space-4);margin-bottom:22px;background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:13px;outline:none"></input>
+        </sc-if>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-8);margin-bottom:22px">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px">
+              <span style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500)">Польза</span>
+              <span style="font-size:12px;color:var(--color-accent)">{{ usefulnessLabel }}</span>
+            </div>
+            <div style="display:flex;gap:var(--space-2)">
+              <sc-for list="{{ usefulnessBtns }}" as="b" hint-placeholder-count="5">
+                <button onClick="{{ b.pick }}" style="flex:1;padding:var(--space-4) 0;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;background:{{ b.bg }};color:{{ b.fg }};border:1px solid {{ b.bd }}">{{ b.value }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px">
+              <span style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500)">Доверие</span>
+              <span style="font-size:12px;color:var(--color-accent-2-400)">{{ trustLabel }}</span>
+            </div>
+            <div style="display:flex;gap:var(--space-2)">
+              <sc-for list="{{ trustBtns }}" as="b" hint-placeholder-count="5">
+                <button onClick="{{ b.pick }}" style="flex:1;padding:var(--space-4) 0;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;background:{{ b.bg }};color:{{ b.fg }};border:1px solid {{ b.bd }}">{{ b.value }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:220px 1fr;gap:var(--space-4);align-items:end;margin-bottom:16px">
+          <div>
+            <div style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500);margin-bottom:8px">Инструмент</div>
+            <select value="{{ tool }}" onChange="{{ setTool }}" style="width:100%;padding:var(--space-3) var(--space-4);background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:13px;outline:none">
+              <sc-for list="{{ tools }}" as="t" hint-placeholder-count="4">
+                <option value="{{ t.code }}">{{ t.title }}</option>
+              </sc-for>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500);margin-bottom:8px">Задача <span style="text-transform:none;letter-spacing:0;color:var(--color-neutral-600)">— опционально</span></div>
+            <input value="{{ taskRef }}" onChange="{{ setTaskRef }}" placeholder="FE-1042" style="width:100%;padding:var(--space-3) var(--space-4);background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:13px;font-variant-numeric:tabular-nums;outline:none"></input>
+          </div>
+        </div>
+
+        <button onClick="{{ toggleNote }}" style="background:none;border:0;padding:0;color:var(--color-neutral-400);font-size:12.5px;cursor:pointer;margin-bottom:10px;display:inline-flex;align-items:center;gap:var(--space-2)" style-hover="color:var(--color-text)"><i class="{{ noteToggleIcon }}"></i>{{ noteToggleLabel }}</button>
+        <sc-if value="{{ noteOpen }}" hint-placeholder-val="{{ false }}">
+          <textarea value="{{ note }}" onChange="{{ setNote }}" rows="3" placeholder="Что именно сработало или не сработало" style="width:100%;padding:var(--space-3) var(--space-4);background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:13px;font-family:inherit;resize:vertical;outline:none"></textarea>
+        </sc-if>
+
+        <div style="display:flex;align-items:center;gap:var(--space-4);margin-top:18px;padding-top:18px;border-top:1px solid var(--color-neutral-800)">
+          <button onClick="{{ save }}" disabled="{{ saveDisabled }}" style="padding:var(--space-4) var(--space-8);border:1px solid {{ saveBd }};border-radius:var(--radius-md);font-size:13.5px;font-weight:500;cursor:pointer;background:{{ saveBg }};color:{{ saveFg }}">Сохранить запись</button>
+          <span style="font-size:12px;color:var(--color-neutral-600)">{{ saveHint }}</span>
+          <div style="flex:1"></div>
+          <button onClick="{{ reset }}" style="background:none;border:0;color:var(--color-neutral-500);font-size:12.5px;cursor:pointer" style-hover="color:var(--color-neutral-400)">Очистить</button>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:var(--space-4)">
+        <div style="background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg);padding:var(--space-6) var(--space-6) var(--space-4)">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500);margin-bottom:12px">Последние 3 записи</div>
+          <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+            <sc-for list="{{ recent }}" as="r" hint-placeholder-count="3">
+              <div style="padding:var(--space-3) var(--space-4);background:var(--color-bg);border:1px solid var(--color-neutral-800);border-radius:var(--radius-md)">
+                <div style="display:flex;justify-content:space-between;gap:var(--space-3);margin-bottom:4px">
+                  <span style="font-size:12.5px;font-weight:500;line-height:1.35">{{ r.approach }}</span>
+                  <span style="font-variant-numeric:tabular-nums;font-size:10.5px;color:var(--color-neutral-600);white-space:nowrap">{{ r.time }}</span>
+                </div>
+                <div style="display:flex;gap:var(--space-3);font-variant-numeric:tabular-nums;font-size:10.5px;color:var(--color-neutral-500)">
+                  <span>{{ r.stage }}</span><span>·</span><span style="color:var(--color-accent)">П {{ r.usefulness }}</span><span style="color:var(--color-accent-2-400)">Д {{ r.trust }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg);padding:var(--space-6)">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500);margin-bottom:11px">Шкалы</div>
+          <div style="display:flex;flex-direction:column;gap:var(--space-2);margin-bottom:14px">
+            <span style="font-size:11.5px;color:var(--color-accent);font-weight:600">Польза</span>
+            <sc-for list="{{ usefulnessScale }}" as="s" hint-placeholder-count="5">
+              <div style="display:flex;gap:var(--space-3);font-size:11.5px;color:var(--color-neutral-400)"><span style="font-variant-numeric:tabular-nums;color:var(--color-neutral-600)">{{ s.v }}</span><span>{{ s.label }}</span></div>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+            <span style="font-size:11.5px;color:var(--color-accent-2-400);font-weight:600">Доверие</span>
+            <sc-for list="{{ trustScale }}" as="s" hint-placeholder-count="5">
+              <div style="display:flex;gap:var(--space-3);font-size:11.5px;color:var(--color-neutral-400)"><span style="font-variant-numeric:tabular-nums;color:var(--color-neutral-600)">{{ s.v }}</span><span>{{ s.label }}</span></div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isLayoutB }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:720px;margin:0 auto">
+      <div style="background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg);overflow:hidden">
+        <div style="padding:var(--space-6) var(--space-8);border-bottom:1px solid var(--color-neutral-800)">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500);margin-bottom:10px">1 · Стадия</div>
+          <div style="display:flex;flex-wrap:wrap;gap:var(--space-3)">
+            <sc-for list="{{ stageChips }}" as="s" hint-placeholder-count="9">
+              <button onClick="{{ s.pick }}" style="padding:var(--space-3) var(--space-4);border-radius:var(--radius-lg);font-size:13px;font-weight:500;cursor:pointer;background:{{ s.bg }};color:{{ s.fg }};border:1px solid {{ s.bd }}">{{ s.title }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="padding:var(--space-6) var(--space-8);border-bottom:1px solid var(--color-neutral-800)">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500);margin-bottom:10px">2 · Подход</div>
+          <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);min-height:38px">
+            <sc-for list="{{ approachChips }}" as="a" hint-placeholder-count="6">
+              <button onClick="{{ a.pick }}" style="padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);font-size:13px;cursor:pointer;background:{{ a.bg }};color:{{ a.fg }};border:1px solid {{ a.bd }};display:inline-flex;align-items:center;gap:var(--space-2)"><i class="{{ a.icon }}"></i>{{ a.title }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="padding:var(--space-6) var(--space-8);border-bottom:1px solid var(--color-neutral-800);display:grid;grid-template-columns:1fr 1fr;gap:var(--space-8)">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px">
+              <span style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500)">3 · Польза</span>
+              <span style="font-size:12px;color:var(--color-accent)">{{ usefulnessLabel }}</span>
+            </div>
+            <div style="display:flex;gap:var(--space-2)">
+              <sc-for list="{{ usefulnessBtns }}" as="b" hint-placeholder-count="5">
+                <button onClick="{{ b.pick }}" style="flex:1;padding:var(--space-4) 0;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;background:{{ b.bg }};color:{{ b.fg }};border:1px solid {{ b.bd }}">{{ b.value }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px">
+              <span style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500)">4 · Доверие</span>
+              <span style="font-size:12px;color:var(--color-accent-2-400)">{{ trustLabel }}</span>
+            </div>
+            <div style="display:flex;gap:var(--space-2)">
+              <sc-for list="{{ trustBtns }}" as="b" hint-placeholder-count="5">
+                <button onClick="{{ b.pick }}" style="flex:1;padding:var(--space-4) 0;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;background:{{ b.bg }};color:{{ b.fg }};border:1px solid {{ b.bd }}">{{ b.value }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <div style="padding:var(--space-6) var(--space-8);display:flex;align-items:center;gap:var(--space-4)">
+          <select value="{{ tool }}" onChange="{{ setTool }}" style="width:190px;padding:var(--space-3) var(--space-4);background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:13px;outline:none">
+            <sc-for list="{{ tools }}" as="t" hint-placeholder-count="4">
+              <option value="{{ t.code }}">{{ t.title }}</option>
+            </sc-for>
+          </select>
+          <input value="{{ taskRef }}" onChange="{{ setTaskRef }}" placeholder="FE-1042" style="width:130px;padding:var(--space-3) var(--space-4);background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:13px;font-variant-numeric:tabular-nums;outline:none"></input>
+          <button onClick="{{ toggleNote }}" style="background:none;border:0;color:var(--color-neutral-400);font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:var(--space-2)"><i class="{{ noteToggleIcon }}"></i>{{ noteToggleLabel }}</button>
+          <div style="flex:1"></div>
+          <button onClick="{{ save }}" disabled="{{ saveDisabled }}" style="padding:var(--space-3) var(--space-8);border:1px solid {{ saveBd }};border-radius:var(--radius-md);font-size:13.5px;font-weight:500;cursor:pointer;background:{{ saveBg }};color:{{ saveFg }}">Сохранить</button>
+        </div>
+        <sc-if value="{{ noteOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 var(--space-8) var(--space-6)">
+            <textarea value="{{ note }}" onChange="{{ setNote }}" rows="3" placeholder="Что именно сработало или не сработало" style="width:100%;padding:var(--space-3) var(--space-4);background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:13px;font-family:inherit;resize:vertical;outline:none"></textarea>
+          </div>
+        </sc-if>
+      </div>
+      <div style="display:flex;gap:var(--space-3);margin-top:14px">
+        <sc-for list="{{ recent }}" as="r" hint-placeholder-count="3">
+          <div style="flex:1;padding:var(--space-3) var(--space-4);background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-md)">
+            <div style="font-size:12px;font-weight:500;margin-bottom:4px;line-height:1.35">{{ r.approach }}</div>
+            <div style="font-variant-numeric:tabular-nums;font-size:10.5px;color:var(--color-neutral-500)">{{ r.time }} · П {{ r.usefulness }} · Д {{ r.trust }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isLayoutC }}" hint-placeholder-val="{{ false }}">
+    <div style="background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg);display:grid;grid-template-columns:230px minmax(0,1fr) 300px;min-height:430px">
+      <div style="border-right:1px solid var(--color-neutral-800);padding:var(--space-6) var(--space-6)">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500);margin-bottom:11px">Стадия</div>
+        <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+          <sc-for list="{{ stageChips }}" as="s" hint-placeholder-count="9">
+            <button onClick="{{ s.pick }}" style="text-align:left;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);font-size:13px;font-weight:500;cursor:pointer;background:{{ s.bg }};color:{{ s.fg }};border:1px solid {{ s.bd }}">{{ s.title }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="padding:var(--space-6) var(--space-8);display:flex;flex-direction:column">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500);margin-bottom:11px">Подход</div>
+        <div style="display:flex;flex-direction:column;gap:var(--space-2);margin-bottom:20px">
+          <sc-for list="{{ approachChips }}" as="a" hint-placeholder-count="6">
+            <button onClick="{{ a.pick }}" style="text-align:left;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);font-size:13px;cursor:pointer;background:{{ a.bg }};color:{{ a.fg }};border:1px solid {{ a.bd }};display:inline-flex;align-items:center;gap:var(--space-2)"><i class="{{ a.icon }}"></i>{{ a.title }}</button>
+          </sc-for>
+        </div>
+        <div style="flex:1"></div>
+        <div style="display:flex;gap:var(--space-3);align-items:center">
+          <select value="{{ tool }}" onChange="{{ setTool }}" style="width:180px;padding:var(--space-3) var(--space-4);background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:13px;outline:none">
+            <sc-for list="{{ tools }}" as="t" hint-placeholder-count="4">
+              <option value="{{ t.code }}">{{ t.title }}</option>
+            </sc-for>
+          </select>
+          <input value="{{ taskRef }}" onChange="{{ setTaskRef }}" placeholder="FE-1042" style="width:120px;padding:var(--space-3) var(--space-4);background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:13px;font-variant-numeric:tabular-nums;outline:none"></input>
+        </div>
+      </div>
+      <div style="border-left:1px solid var(--color-neutral-800);padding:var(--space-6) var(--space-6);display:flex;flex-direction:column;gap:var(--space-6)">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px">
+            <span style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500)">Польза</span>
+            <span style="font-size:12px;color:var(--color-accent)">{{ usefulnessLabel }}</span>
+          </div>
+          <div style="display:flex;gap:var(--space-2)">
+            <sc-for list="{{ usefulnessBtns }}" as="b" hint-placeholder-count="5">
+              <button onClick="{{ b.pick }}" style="flex:1;padding:var(--space-3) 0;border-radius:var(--radius-md);font-size:13px;font-weight:600;cursor:pointer;background:{{ b.bg }};color:{{ b.fg }};border:1px solid {{ b.bd }}">{{ b.value }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px">
+            <span style="font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--color-neutral-500)">Доверие</span>
+            <span style="font-size:12px;color:var(--color-accent-2-400)">{{ trustLabel }}</span>
+          </div>
+          <div style="display:flex;gap:var(--space-2)">
+            <sc-for list="{{ trustBtns }}" as="b" hint-placeholder-count="5">
+              <button onClick="{{ b.pick }}" style="flex:1;padding:var(--space-3) 0;border-radius:var(--radius-md);font-size:13px;font-weight:600;cursor:pointer;background:{{ b.bg }};color:{{ b.fg }};border:1px solid {{ b.bd }}">{{ b.value }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <sc-if value="{{ noteOpen }}" hint-placeholder-val="{{ false }}">
+          <textarea value="{{ note }}" onChange="{{ setNote }}" rows="3" placeholder="Заметка" style="width:100%;padding:var(--space-3) var(--space-4);background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:13px;font-family:inherit;resize:vertical;outline:none"></textarea>
+        </sc-if>
+        <div style="flex:1"></div>
+        <button onClick="{{ toggleNote }}" style="background:none;border:0;color:var(--color-neutral-400);font-size:12.5px;cursor:pointer;text-align:left;display:inline-flex;align-items:center;gap:var(--space-2)"><i class="{{ noteToggleIcon }}"></i>{{ noteToggleLabel }}</button>
+        <button onClick="{{ save }}" disabled="{{ saveDisabled }}" style="padding:var(--space-4) 0;border:1px solid {{ saveBd }};border-radius:var(--radius-md);font-size:13.5px;font-weight:500;cursor:pointer;background:{{ saveBg }};color:{{ saveFg }}">Сохранить запись</button>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isMine }}" hint-placeholder-val="{{ false }}">
+  <div style="padding:var(--space-8) var(--space-8) var(--space-8);max-width:1320px;margin:0 auto">
+    <h1 style="margin:0 0 5px;font-size:21px;font-weight:600;letter-spacing:-.01em">Мои записи</h1>
+    <p style="margin:0 0 20px;font-size:13px;color:var(--color-neutral-400)">{{ mineSubtitle }}</p>
+
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:var(--space-6);align-items:start">
+      <div style="background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg);overflow:hidden">
+        <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);padding:var(--space-4) var(--space-6);border-bottom:1px solid var(--color-neutral-800);align-items:center">
+          <select value="{{ mineStage }}" onChange="{{ setMineStage }}" style="padding:var(--space-3) var(--space-3);background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:12.5px;outline:none">
+            <option value="all">Все стадии</option>
+            <sc-for list="{{ stages }}" as="s" hint-placeholder-count="9">
+              <option value="{{ s.code }}">{{ s.title }}</option>
+            </sc-for>
+          </select>
+          <select value="{{ mineMonth }}" onChange="{{ setMineMonth }}" style="padding:var(--space-3) var(--space-3);background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:12.5px;outline:none">
+            <option value="all">Весь пилот</option>
+            <sc-for list="{{ months }}" as="m" hint-placeholder-count="3">
+              <option value="{{ m.key }}">{{ m.title }}</option>
+            </sc-for>
+          </select>
+          <div style="flex:1"></div>
+          <span style="font-variant-numeric:tabular-nums;font-size:11.5px;color:var(--color-neutral-500)">{{ mineCountLabel }}</span>
+        </div>
+        <div>
+          <sc-for list="{{ mineList }}" as="e" hint-placeholder-count="6">
+            <div style="display:grid;grid-template-columns:78px minmax(0,1fr) 120px 92px;gap:var(--space-4);align-items:center;padding:var(--space-4) var(--space-6);border-bottom:1px solid var(--color-neutral-900)">
+              <span style="font-variant-numeric:tabular-nums;font-size:11px;color:var(--color-neutral-500)">{{ e.date }}</span>
+              <div style="min-width:0">
+                <div style="font-size:13px;font-weight:500;margin-bottom:3px">{{ e.approach }}</div>
+                <div style="font-size:11.5px;color:var(--color-neutral-500)">{{ e.meta }}</div>
+                <sc-if value="{{ e.note }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:11.5px;color:var(--color-neutral-400);margin-top:4px;border-left:2px solid var(--color-neutral-700);padding-left:8px">{{ e.note }}</div>
+                </sc-if>
+              </div>
+              <div style="display:flex;gap:var(--space-2);font-variant-numeric:tabular-nums;font-size:11.5px">
+                <span style="color:var(--color-accent)">П {{ e.usefulness }}</span>
+                <span style="color:var(--color-accent-2-400)">Д {{ e.trust }}</span>
+              </div>
+              <div style="display:flex;gap:var(--space-3);justify-content:flex-end">
+                <sc-if value="{{ e.editable }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ e.edit }}" style="background:none;border:0;color:var(--color-neutral-400);font-size:11.5px;cursor:pointer" style-hover="color:var(--color-text)">Изменить</button>
+                  <button onClick="{{ e.remove }}" style="background:none;border:0;color:var(--color-neutral-400);font-size:11.5px;cursor:pointer" style-hover="color:var(--bad)">Удалить</button>
+                </sc-if>
+                <sc-if value="{{ e.locked }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:11px;color:var(--color-neutral-600)">7 дней прошло</span>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg);padding:var(--space-8)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <h2 style="margin:0;font-size:15px;font-weight:600">Моя сводка за месяц</h2>
+          <button onClick="{{ copySummary }}" style="padding:var(--space-2) var(--space-4);border-radius:var(--radius-md);border:1px solid var(--color-neutral-700);background:var(--color-bg);color:var(--color-text);font-size:12px;cursor:pointer" style-hover="border-color:var(--color-accent);color:var(--color-accent)">{{ copyLabel }}</button>
+        </div>
+        <p style="margin:0 0 16px;font-size:12px;color:var(--color-neutral-500)">{{ summaryPeriod }} · готово к зачитыванию на встрече</p>
+        <div style="display:flex;flex-direction:column;gap:var(--space-6)">
+          <sc-for list="{{ summaryGroups }}" as="g" hint-placeholder-count="4">
+            <div>
+              <div style="display:flex;align-items:baseline;gap:var(--space-3);margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--color-neutral-800)">
+                <span style="font-size:12.5px;font-weight:600;color:var(--color-text)">{{ g.stage }}</span>
+                <span style="font-variant-numeric:tabular-nums;font-size:11px;color:var(--color-neutral-600)">N {{ g.n }}</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+                <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="2">
+                  <div>
+                    <div style="display:flex;justify-content:space-between;gap:var(--space-3);align-items:baseline">
+                      <span style="font-size:12.5px;color:var(--color-neutral-300);line-height:1.35">{{ r.approach }}</span>
+                      <span style="font-variant-numeric:tabular-nums;font-size:11.5px;white-space:nowrap;color:{{ r.color }}">{{ r.stat }}</span>
+                    </div>
+                    <sc-if value="{{ r.note }}" hint-placeholder-val="{{ false }}">
+                      <div style="font-size:11.5px;color:var(--color-neutral-500);margin-top:3px">{{ r.note }}</div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isDash }}" hint-placeholder-val="{{ false }}">
+  <div style="padding:var(--space-8) var(--space-8) var(--space-8);max-width:1440px;margin:0 auto">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <h1 style="margin:0 0 5px;font-size:21px;font-weight:600;letter-spacing:-.01em">Дашборд</h1>
+        <p style="margin:0;font-size:13px;color:var(--color-neutral-400)">{{ dashSubtitle }}</p>
+      </div>
+      <span style="font-size:11.5px;color:var(--color-neutral-600)">Рядом со средней всегда N. При N &lt; 5 значение приглушено.</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:var(--space-6);margin-bottom:16px">
+      <div style="background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg);padding:var(--space-8)">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px">
+          <h2 style="margin:0;font-size:14.5px;font-weight:600">Квадранты: частота × польза</h2>
+          <span style="font-variant-numeric:tabular-nums;font-size:11px;color:var(--color-neutral-600)">границы — медианы {{ medianLabel }}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:22px minmax(0,1fr);grid-template-rows:minmax(0,1fr) 22px;gap:var(--space-2)">
+          <div style="writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-size:10.5px;color:var(--color-neutral-600)">средняя польза →</div>
+          <div style="position:relative;height:340px;background:var(--color-bg);border:1px solid var(--color-neutral-800);border-radius:var(--radius-md);overflow:hidden">
+            <div style="position:absolute;left:0;right:0;top:{{ medianYPct }}%;height:1px;background:var(--color-neutral-700)"></div>
+            <div style="position:absolute;top:0;bottom:0;left:{{ medianXPct }}%;width:1px;background:var(--color-neutral-700)"></div>
+            <sc-for list="{{ quadrantLabels }}" as="q" hint-placeholder-count="4">
+              <div style="position:absolute;left:{{ q.left }};top:{{ q.top }};right:{{ q.right }};bottom:{{ q.bottom }};padding:var(--space-3) var(--space-3);font-size:10.5px;color:var(--color-neutral-700);text-align:{{ q.align }};pointer-events:none">{{ q.text }}</div>
+            </sc-for>
+            <sc-for list="{{ points }}" as="p" hint-placeholder-count="12">
+              <button onClick="{{ p.pick }}" title="{{ p.tip }}" style="position:absolute;left:{{ p.x }}%;top:{{ p.y }}%;width:{{ p.size }}px;height:{{ p.size }}px;transform:translate(-50%,-50%);border-radius:50%;cursor:pointer;background:{{ p.fill }};border:1.5px solid {{ p.stroke }}"></button>
+            </sc-for>
+          </div>
+          <div></div>
+          <div style="text-align:center;font-size:10.5px;color:var(--color-neutral-600)">число применений командой →</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-6);margin-top:12px;font-size:11px;color:var(--color-neutral-500)">
+          <span>цвет — среднее доверие:</span>
+          <span style="display:flex;align-items:center;gap:var(--space-2)"><span style="width:9px;height:9px;border-radius:50%;background:var(--bad)"></span>низкое</span>
+          <span style="display:flex;align-items:center;gap:var(--space-2)"><span style="width:9px;height:9px;border-radius:50%;background:var(--warn)"></span>среднее</span>
+          <span style="display:flex;align-items:center;gap:var(--space-2)"><span style="width:9px;height:9px;border-radius:50%;background:var(--color-accent)"></span>высокое</span>
+          <span style="margin-left:auto">размер — число записей · клик по точке → записи</span>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:var(--space-6)">
+        <div style="background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg);padding:var(--space-8)">
+          <h2 style="margin:0 0 14px;font-size:14.5px;font-weight:600">Покрытие стадий</h2>
+          <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+            <sc-for list="{{ coverage }}" as="c" hint-placeholder-count="9">
+              <div style="display:grid;grid-template-columns:130px minmax(0,1fr) 84px;gap:var(--space-3);align-items:center">
+                <span style="font-size:12.5px;color:{{ c.titleColor }}">{{ c.title }}</span>
+                <div style="height:9px;background:var(--color-bg);border-radius:var(--radius-md);overflow:hidden">
+                  <div style="height:100%;width:{{ c.pct }}%;background:{{ c.color }};border-radius:var(--radius-md)"></div>
+                </div>
+                <span style="font-variant-numeric:tabular-nums;font-size:11px;color:{{ c.noteColor }};display:inline-flex;align-items:center;gap:var(--space-1)">{{ c.label }}<i class="{{ c.warnIcon }}"></i></span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg);padding:var(--space-8)">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">
+            <h2 style="margin:0;font-size:14.5px;font-weight:600">Динамика средней пользы</h2>
+            <select value="{{ dynStage }}" onChange="{{ setDynStage }}" style="padding:var(--space-2) var(--space-3);background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:12px;outline:none">
+              <option value="all">Суммарно</option>
+              <sc-for list="{{ stages }}" as="s" hint-placeholder-count="9">
+                <option value="{{ s.code }}">{{ s.title }}</option>
+              </sc-for>
+            </select>
+          </div>
+          <div style="position:relative;height:150px;border-left:1px solid var(--color-neutral-800);border-bottom:1px solid var(--color-neutral-800);margin-bottom:8px">
+            <svg viewBox="0 0 300 150" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+              <polyline points="{{ dynPoints }}" fill="none" stroke="var(--color-accent)" stroke-width="2" vector-effect="non-scaling-stroke"></polyline>
+            </svg>
+            <sc-for list="{{ dynDots }}" as="d" hint-placeholder-count="3">
+              <div style="position:absolute;left:{{ d.x }}%;top:{{ d.y }}%;transform:translate(-50%,-50%);width:8px;height:8px;border-radius:50%;background:var(--color-accent)"></div>
+            </sc-for>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <sc-for list="{{ dynDots }}" as="d" hint-placeholder-count="3">
+              <div style="text-align:center;font-variant-numeric:tabular-nums;font-size:11px;color:var(--color-neutral-500)">{{ d.label }}<br><span style="color:{{ d.color }}">{{ d.value }}</span> <span style="color:var(--color-neutral-600)">N {{ d.n }}</span></div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.45fr);gap:var(--space-6)">
+      <div style="background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg);padding:var(--space-8)">
+        <h2 style="margin:0 0 4px;font-size:14.5px;font-weight:600">Разброс между участниками</h2>
+        <p style="margin:0 0 14px;font-size:12px;color:var(--color-neutral-500)">Большой разброс — дело в способе применения, а не в подходе.</p>
+        <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+          <sc-for list="{{ spread }}" as="s" hint-placeholder-count="6">
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) 150px 46px;gap:var(--space-3);align-items:center">
+              <span style="font-size:12.5px;color:var(--color-neutral-300);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.title }}</span>
+              <div style="position:relative;height:16px">
+                <div style="position:absolute;left:0;right:0;top:7px;height:1px;background:var(--color-neutral-800)"></div>
+                <div style="position:absolute;top:6px;height:4px;border-radius:var(--radius-sm);left:{{ s.left }}%;width:{{ s.width }}%;background:{{ s.color }}"></div>
+              </div>
+              <span style="font-variant-numeric:tabular-nums;font-size:11px;color:{{ s.color }}">{{ s.delta }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg);padding:var(--space-8) 0 var(--space-3)">
+        <h2 style="margin:0 20px 14px;font-size:14.5px;font-weight:600">Таблица подходов</h2>
+        <div style="max-height:360px;overflow:auto">
+          <table style="width:100%;border-collapse:collapse">
+            <thead>
+              <tr>
+                <sc-for list="{{ columns }}" as="c" hint-placeholder-count="6">
+                  <th onClick="{{ c.sort }}" style="position:sticky;top:0;background:var(--color-surface);padding:var(--space-3) var(--space-4);text-align:{{ c.align }};font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:{{ c.color }};cursor:pointer;border-bottom:1px solid var(--color-neutral-800);white-space:nowrap"><span style="display:inline-flex;align-items:center;gap:var(--space-1)">{{ c.title }}<i class="{{ c.sortIcon }}"></i></span></th>
+                </sc-for>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ tableRows }}" as="r" hint-placeholder-count="10">
+                <tr onClick="{{ r.pick }}" style="cursor:pointer" style-hover="background:var(--color-neutral-900)">
+                  <td style="padding:var(--space-3) var(--space-4);font-size:12.5px;border-bottom:1px solid var(--color-neutral-900)">{{ r.title }}</td>
+                  <td style="padding:var(--space-3) var(--space-4);font-size:12px;color:var(--color-neutral-400);border-bottom:1px solid var(--color-neutral-900);white-space:nowrap">{{ r.stage }}</td>
+                  <td style="padding:var(--space-3) var(--space-4);font-variant-numeric:tabular-nums;font-size:12px;text-align:right;color:var(--color-neutral-400);border-bottom:1px solid var(--color-neutral-900)">{{ r.n }}</td>
+                  <td style="padding:var(--space-3) var(--space-4);font-variant-numeric:tabular-nums;font-size:12px;text-align:right;border-bottom:1px solid var(--color-neutral-900);color:{{ r.uColor }}">{{ r.avgU }}</td>
+                  <td style="padding:var(--space-3) var(--space-4);font-variant-numeric:tabular-nums;font-size:12px;text-align:right;border-bottom:1px solid var(--color-neutral-900);color:{{ r.tColor }}">{{ r.avgT }}</td>
+                  <td style="padding:var(--space-3) var(--space-4);font-variant-numeric:tabular-nums;font-size:12px;text-align:right;color:var(--color-neutral-400);border-bottom:1px solid var(--color-neutral-900)">{{ r.reach }}</td>
+                  <td style="padding:var(--space-3) var(--space-4);font-size:10.5px;color:var(--warn-dim);border-bottom:1px solid var(--color-neutral-900);white-space:nowrap">{{ r.flag }}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+  <div style="padding:var(--space-8) var(--space-8) var(--space-8);max-width:1320px;margin:0 auto">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <h1 style="margin:0 0 5px;font-size:21px;font-weight:600;letter-spacing:-.01em">Администрирование</h1>
+        <p style="margin:0;font-size:13px;color:var(--color-neutral-400)">Доступно только роли lead.</p>
+      </div>
+      <button onClick="{{ exportCsv }}" style="padding:var(--space-3) var(--space-6);border-radius:var(--radius-md);border:1px solid var(--color-neutral-700);background:var(--color-bg);color:var(--color-text);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:var(--space-2)" style-hover="border-color:var(--color-accent);color:var(--color-accent)"><i class="ph ph-download-simple"></i>{{ exportLabel }}</button>
+    </div>
+
+    <sc-if value="{{ notLead }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:var(--space-6) var(--space-6);background:var(--color-neutral-900);border:1px solid var(--warn-dim);border-radius:var(--radius-lg);font-size:13px;color:var(--warn)">Вы вошли как dev — экран доступен только лиду. Войдите под учётной записью тимлида.</div>
+    </sc-if>
+
+    <sc-if value="{{ isLead }}" hint-placeholder-val="{{ true }}">
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:var(--space-6);align-items:start">
+      <div style="display:flex;flex-direction:column;gap:var(--space-6)">
+        <div style="background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg);padding:var(--space-8)">
+          <h2 style="margin:0 0 4px;font-size:14.5px;font-weight:600">Кастомные подходы на разбор</h2>
+          <p style="margin:0 0 14px;font-size:12px;color:var(--color-neutral-500)">Повторяющиеся — промоутить в справочник, иначе агрегации не будет.</p>
+          <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+            <sc-for list="{{ customQueue }}" as="c" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:var(--space-4);padding:var(--space-4) var(--space-4);background:var(--color-bg);border:1px solid var(--color-neutral-800);border-radius:var(--radius-md)">
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;margin-bottom:3px">{{ c.text }}</div>
+                  <div style="font-variant-numeric:tabular-nums;font-size:11px;color:var(--color-neutral-500)">{{ c.meta }}</div>
+                </div>
+                <button onClick="{{ c.promote }}" style="padding:var(--space-2) var(--space-4);border-radius:var(--radius-md);border:1px solid var(--color-accent-700);background:var(--color-accent-900);color:var(--color-accent);font-size:12px;cursor:pointer">{{ c.action }}</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg);padding:var(--space-8) 0 var(--space-2)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin:0 20px 14px">
+            <h2 style="margin:0;font-size:14.5px;font-weight:600">Справочник подходов</h2>
+            <div style="display:flex;align-items:center;gap:var(--space-3)">
+              <select value="{{ adminStage }}" onChange="{{ setAdminStage }}" style="padding:var(--space-3) var(--space-3);background:var(--color-bg);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:12px;outline:none">
+                <option value="all">Все стадии</option>
+                <sc-for list="{{ stages }}" as="s" hint-placeholder-count="9">
+                  <option value="{{ s.code }}">{{ s.title }}</option>
+                </sc-for>
+              </select>
+              <button onClick="{{ addApproach }}" style="padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);border:1px solid var(--color-accent-700);background:var(--color-accent-900);color:var(--color-accent);font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:var(--space-2)"><i class="ph ph-plus"></i>Подход</button>
+            </div>
+          </div>
+          <div style="max-height:420px;overflow:auto">
+            <sc-for list="{{ adminApproaches }}" as="a" hint-placeholder-count="10">
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) 110px 54px 96px;gap:var(--space-3);align-items:center;padding:var(--space-3) var(--space-8);border-bottom:1px solid var(--color-neutral-900)">
+                <div style="min-width:0">
+                  <span style="font-size:12.5px;color:{{ a.color }}">{{ a.title }}</span>
+                  <span style="font-variant-numeric:tabular-nums;font-size:10px;color:var(--warn-dim);margin-left:7px">{{ a.badge }}</span>
+                </div>
+                <span style="font-size:11.5px;color:var(--color-neutral-500)">{{ a.stage }}</span>
+                <span style="font-variant-numeric:tabular-nums;font-size:11px;color:var(--color-neutral-500);text-align:right">{{ a.n }}</span>
+                <button onClick="{{ a.toggle }}" style="justify-self:end;padding:var(--space-2) var(--space-3);border-radius:var(--radius-md);font-size:11.5px;cursor:pointer;background:var(--color-bg);color:{{ a.btnColor }};border:1px solid {{ a.btnBd }}">{{ a.btnLabel }}</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:var(--radius-lg);padding:var(--space-8)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <h2 style="margin:0;font-size:14.5px;font-weight:600">Пользователи</h2>
+          <button onClick="{{ toggleNewUser }}" style="padding:var(--space-2) var(--space-4);border-radius:var(--radius-md);border:1px solid var(--color-accent-700);background:var(--color-accent-900);color:var(--color-accent);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:var(--space-2)"><i class="{{ newUserToggleIcon }}"></i>{{ newUserToggleLabel }}</button>
+        </div>
+        <sc-if value="{{ createdCreds }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:var(--space-4);margin-bottom:var(--space-4);background:var(--color-accent-900);border:1px solid var(--color-accent-700);border-radius:var(--radius-md)">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);margin-bottom:var(--space-3)">
+              <span style="font-size:12px;color:var(--color-accent)">Выданы доступы — {{ credsName }}</span>
+              <button onClick="{{ dismissCreds }}" aria-label="Скрыть" style="background:none;border:0;color:var(--color-accent);cursor:pointer;display:flex"><i class="ph ph-x"></i></button>
+            </div>
+            <div style="display:flex;gap:var(--space-6);font-variant-numeric:tabular-nums;font-size:13px;margin-bottom:var(--space-3)">
+              <span>Логин: <b style="font-weight:500">{{ credsLogin }}</b></span>
+              <span>Пароль: <b style="font-weight:500">{{ credsPass }}</b></span>
+            </div>
+            <button onClick="{{ copyCreds }}" style="display:inline-flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-4);border:1px solid var(--color-accent);border-radius:var(--radius-md);background:transparent;color:var(--color-accent-300);font-size:12px;cursor:pointer"><i class="ph ph-copy"></i>Скопировать</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ newUserOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:var(--space-3);padding:var(--space-4);margin-bottom:var(--space-4);background:var(--color-bg);border:1px solid var(--color-accent-700);border-radius:var(--radius-md)">
+            <input value="{{ newUserName }}" onChange="{{ setNewUserName }}" placeholder="Имя участника" style="width:100%;padding:var(--space-3) var(--space-3);background:var(--color-surface);border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);color:var(--color-text);font-size:13px;outline:none"></input>
+            <div style="display:flex;gap:var(--space-2)">
+              <sc-for list="{{ newUserRoles }}" as="r" hint-placeholder-count="2">
+                <button onClick="{{ r.pick }}" style="flex:1;padding:var(--space-3) 0;border-radius:var(--radius-md);font-size:12.5px;cursor:pointer;background:{{ r.bg }};color:{{ r.fg }};border:1px solid {{ r.bd }}">{{ r.title }}</button>
+              </sc-for>
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--space-4)">
+              <button onClick="{{ createUser }}" disabled="{{ createDisabled }}" style="padding:var(--space-3) var(--space-6);border-radius:var(--radius-md);border:1px solid {{ createBd }};background:{{ createBg }};color:{{ createFg }};font-size:12.5px;cursor:pointer">Создать</button>
+              <span style="font-size:11.5px;color:var(--color-neutral-500)">{{ createHint }}</span>
+            </div>
+          </div>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+          <sc-for list="{{ adminUsers }}" as="u" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-4) var(--space-4);background:var(--color-bg);border:1px solid var(--color-neutral-800);border-radius:var(--radius-md)">
+              <div style="flex:1">
+                <div style="font-size:13px;color:{{ u.color }}">{{ u.name }}</div>
+                <div style="font-variant-numeric:tabular-nums;font-size:10.5px;color:var(--color-neutral-500)">{{ u.meta }}</div>
+              </div>
+              <button onClick="{{ u.toggle }}" style="padding:var(--space-2) var(--space-3);border-radius:var(--radius-md);font-size:11.5px;cursor:pointer;background:var(--color-bg);color:{{ u.btnColor }};border:1px solid {{ u.btnBd }}">{{ u.btnLabel }}</button>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--color-neutral-800);font-size:11.5px;color:var(--color-neutral-500);line-height:1.5">Записи не удаляются физически — только <span style="font-variant-numeric:tabular-nums;color:var(--color-neutral-400)">deletedAt</span>. Экспорт CSV содержит все поля записей.</div>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  </sc-if>
+
+  <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:60;background:color-mix(in srgb, var(--color-bg) 78%, transparent);display:flex;justify-content:flex-end">
+    <div onClick="{{ closeDrawer }}" style="flex:1"></div>
+    <div style="width:520px;height:100%;background:var(--color-surface);border-left:1px solid var(--color-neutral-800);overflow:auto;padding:var(--space-8) var(--space-8)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-4);margin-bottom:6px">
+        <h2 style="margin:0;font-size:16px;font-weight:600;line-height:1.3">{{ drawerTitle }}</h2>
+        <button onClick="{{ closeDrawer }}" aria-label="Закрыть" style="background:none;border:0;color:var(--color-neutral-500);font-size:18px;cursor:pointer;line-height:1;display:flex"><i class="ph ph-x"></i></button>
+      </div>
+      <div style="font-variant-numeric:tabular-nums;font-size:11.5px;color:var(--color-neutral-500);margin-bottom:18px">{{ drawerMeta }}</div>
+      <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+        <sc-for list="{{ drawerEntries }}" as="e" hint-placeholder-count="5">
+          <div style="padding:var(--space-4) var(--space-4);background:var(--color-bg);border:1px solid var(--color-neutral-800);border-radius:var(--radius-md)">
+            <div style="display:flex;justify-content:space-between;gap:var(--space-3);margin-bottom:5px">
+              <span style="font-size:12.5px;font-weight:500">{{ e.user }}</span>
+              <span style="font-variant-numeric:tabular-nums;font-size:11px;color:var(--color-neutral-600)">{{ e.meta }}</span>
+            </div>
+            <div style="display:flex;gap:var(--space-3);font-variant-numeric:tabular-nums;font-size:11.5px;margin-bottom:5px">
+              <span style="color:var(--color-accent)">Польза {{ e.usefulness }}</span>
+              <span style="color:var(--color-accent-2-400)">Доверие {{ e.trust }}</span>
+            </div>
+            <sc-if value="{{ e.note }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:12.5px;color:var(--color-neutral-300);line-height:1.45">{{ e.note }}</div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:70;padding:var(--space-4) var(--space-6);background:var(--color-accent-900);border:1px solid var(--color-accent-700);border-radius:var(--radius-md);color:var(--color-accent-300);font-size:13px">{{ toast }}</div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;nocturne&quot;,&quot;black&quot;,&quot;mint&quot;],&quot;default&quot;:&quot;nocturne&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Оформление&quot;}}">
+class Component extends DCLogic {
+  stagesData = [
+    ['analysis', 'Анализ задачи'], ['design', 'Проектирование'], ['code', 'Написание кода'],
+    ['refactor', 'Рефакторинг'], ['debug', 'Дебаг'], ['test', 'Тесты'],
+    ['review', 'Код-ревью'], ['docs', 'Документация'], ['misc', 'Прочее']
+  ];
+
+  // [code, stage, title, baseUsefulness, baseTrust, count]
+  approachesData = [
+    ['a1', 'analysis', 'Разбор требований', 4, 4, 7],
+    ['a2', 'analysis', 'Декомпозиция задачи', 4, 4, 5],
+    ['a3', 'analysis', 'План реализации до кода', 5, 4, 4],
+    ['d1', 'design', 'Обсуждение архитектурных вариантов', 4, 3, 4],
+    ['d2', 'design', 'Структура модуля / контракт API / типы', 4, 4, 6],
+    ['d3', 'design', 'Ревью своего архитектурного решения', 3, 3, 3],
+    ['c1', 'code', 'Автокомплит в IDE', 4, 4, 14],
+    ['c2', 'code', 'Генерация по описанию задачи', 3, 3, 11],
+    ['c3', 'code', 'Чат-итерации', 4, 3, 12],
+    ['c4', 'code', 'Агентный режим', 3, 2, 9],
+    ['c5', 'code', 'Генерация по образцу компонента', 5, 4, 8],
+    ['c6', 'code', 'Миграция синтаксиса Angular', 4, 4, 5],
+    ['c7', 'code', 'Бойлерплейт', 5, 5, 10],
+    ['r1', 'refactor', 'Разбиение большого компонента', 4, 3, 6],
+    ['r2', 'refactor', 'Устранение дублирования', 3, 3, 4],
+    ['r3', 'refactor', 'Модернизация легаси', 3, 2, 3],
+    ['g1', 'debug', 'Стектрейс + контекст → гипотезы', 4, 3, 9],
+    ['g2', 'debug', 'Объяснение легаси-кода', 5, 4, 7],
+    ['g3', 'debug', 'Проговаривание проблемы в диалоге', 4, 4, 4],
+    ['t1', 'test', 'Генерация unit-тестов по коду', 4, 3, 13],
+    ['t2', 'test', 'Список сценариев, затем код тестов', 5, 4, 6],
+    ['t3', 'test', 'Дописывание покрытия по coverage', 4, 3, 5],
+    ['t4', 'test', 'Тестовые данные, фикстуры, моки', 5, 5, 7],
+    ['t5', 'test', 'E2E по описанию юзер-флоу', 2, 2, 3],
+    ['v1', 'review', 'Само-ревью своего PR', 4, 4, 5],
+    ['v2', 'review', 'Второе мнение по чужому PR', 3, 3, 2],
+    ['o1', 'docs', 'JSDoc / комментарии', 3, 4, 4],
+    ['o2', 'docs', 'Описание PR', 4, 5, 8],
+    ['o3', 'docs', 'README / гайд по модулю', 4, 4, 3],
+    ['m1', 'misc', 'Коммит-месседжи', 3, 5, 9],
+    ['m2', 'misc', 'Разбор ошибок сборки', 4, 4, 6],
+    ['m3', 'misc', 'Смысловой поиск по кодбазе', 3, 3, 4]
+  ];
+
+  toolsData = [
+    ['cursor', 'Cursor'], ['copilot', 'GitHub Copilot'], ['claude', 'Claude'], ['jb', 'JetBrains AI']
+  ];
+
+  // [id, name, role, login, password]
+  usersData = [
+    ['u1', 'Артём', 'lead', 'artem', 'lead-4821'],
+    ['u2', 'Никита', 'dev', 'nikita', 'dev-7395'],
+    ['u3', 'Полина', 'dev', 'polina', 'dev-2064'],
+    ['u4', 'Даниил', 'dev', 'daniil', 'dev-5178']
+  ];
+
+  genPassword() {
+    const abc = 'abcdefghjkmnpqrstuvwxyz23456789';
+    let out = '';
+    for (let i = 0; i < 8; i++) out += abc[Math.floor(Math.random() * abc.length)];
+    return out;
+  }
+
+  genLogin(name) {
+    const map = { 'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'e','ж':'zh','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'h','ц':'c','ч':'ch','ш':'sh','щ':'sch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya' };
+    let base = name.trim().toLowerCase().split('').map(ch => map[ch] !== undefined ? map[ch] : /[a-z0-9]/.test(ch) ? ch : '').join('');
+    if (!base) base = 'user';
+    let login = base, i = 2;
+    while (this.usersData.some(u => u[3] === login)) login = base + i++;
+    return login;
+  }
+
+  notesPool = [
+    'Структуру угадал, зависимости пришлось поправить руками.',
+    'Быстрее, чем сам, но конвенции проекта не знает.',
+    'Сэкономил примерно час на рутине.',
+    'Ушёл в неправильную гипотезу, вернулся к логам.',
+    'На больших файлах теряет контекст.',
+    'Дал два варианта, взял второй почти как есть.',
+    ''
+  ];
+
+  state = {
+    authed: false, loginForm: { login: '', pass: '', error: '' }, createdCreds: null,
+    screen: 'entry', layout: 'a', userId: 'u1',
+    form: { stage: 'code', approach: null, custom: '', tool: 'cursor', usefulness: 0, trust: 0, taskRef: '', note: '', noteOpen: false },
+    entries: [], inactive: {}, inactiveUsers: {}, promoted: {},
+    mineStage: 'all', mineMonth: '2026-08', dynStage: 'all',
+    sortKey: 'n', sortDir: -1, selected: null, toast: '', copied: false, exported: false,
+    draftAt: null
+  };
+
+  rnd = (() => { let s = 20260805; return () => { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648; }; })();
+
+  themes = [
+    { key: 'nocturne', title: 'Nocturne (система)' },
+    { key: 'black', title: 'Black (зелёный / жёлтый / красный)', mode: 'dark', bg: 'oklch(0.13 0 0)', surface: 'oklch(0.19 0 0)', text: 'oklch(0.95 0 0)', aH: 148, aC: 0.15, nH: 0, nC: 0, warn: 'oklch(0.85 0.15 95)', warnDim: 'oklch(0.70 0.12 95)', bad: 'oklch(0.65 0.20 27)' },
+    { key: 'mint', title: 'Mint (светлая)', mode: 'light', bg: 'oklch(0.96 0.014 165)', surface: 'oklch(0.995 0.005 165)', text: 'oklch(0.25 0.022 165)', aH: 168, aC: 0.10, nH: 168, nC: 0.012 }
+  ];
+
+  applyTheme(key) {
+    const root = document.documentElement;
+    const vars = ['--color-bg', '--color-surface', '--color-text', '--color-accent', '--color-accent-2', '--color-divider', '--warn', '--warn-dim', '--bad'];
+    const steps = [100, 200, 300, 400, 500, 600, 700, 800, 900];
+    steps.forEach(n => vars.push('--color-neutral-' + n, '--color-accent-' + n, '--color-accent-2-' + n));
+    vars.forEach(v => root.style.removeProperty(v));
+    const t = this.themes.find(x => x.key === key);
+    if (!t || t.key === 'nocturne') return;
+    const light = t.mode === 'light';
+    let Ls = [0.96, 0.91, 0.84, 0.74, 0.63, 0.52, 0.42, 0.32, 0.23];
+    if (light) Ls = Ls.slice().reverse();
+    const chr = [0.25, 0.4, 0.6, 0.85, 1, 0.9, 0.75, 0.55, 0.4];
+    root.style.setProperty('--color-bg', t.bg);
+    root.style.setProperty('--color-surface', t.surface);
+    root.style.setProperty('--color-text', t.text);
+    root.style.setProperty('--color-accent', 'oklch(' + (light ? 0.52 : 0.70) + ' ' + t.aC + ' ' + t.aH + ')');
+    root.style.setProperty('--color-accent-2', 'oklch(' + (light ? 0.52 : 0.70) + ' ' + t.aC + ' ' + t.aH + ')');
+    root.style.setProperty('--color-divider', 'color-mix(in srgb, ' + t.text + ' 16%, transparent)');
+    // signal hues step away from the accent so «мало данных» and «низкое доверие» stay distinct
+    root.style.setProperty('--warn', t.warn || (light ? 'oklch(0.55 0.10 70)' : 'oklch(0.78 0.07 70)'));
+    root.style.setProperty('--warn-dim', t.warnDim || (light ? 'oklch(0.50 0.08 70)' : 'oklch(0.65 0.06 70)'));
+    root.style.setProperty('--bad', t.bad || (light ? 'oklch(0.52 0.13 22)' : 'oklch(0.72 0.11 22)'));
+    steps.forEach((n, i) => {
+      root.style.setProperty('--color-neutral-' + n, 'oklch(' + Ls[i] + ' ' + t.nC + ' ' + t.nH + ')');
+      const ac = 'oklch(' + Ls[i] + ' ' + (t.aC * chr[i]).toFixed(3) + ' ' + t.aH + ')';
+      root.style.setProperty('--color-accent-' + n, ac);
+      root.style.setProperty('--color-accent-2-' + n, ac);
+    });
+  }
+
+  componentDidMount() {
+    this.setState({ entries: this.seed() });
+    let saved = null;
+    try { saved = localStorage.getItem('aiTrackerTheme'); } catch (e) {}
+    const known = k => this.themes.some(t => t.key === k);
+    const th = known(saved) ? saved : known(this.props.theme) ? this.props.theme : 'nocturne';
+    this.setState({ theme: th });
+    this.applyTheme(th);
+    try {
+      const raw = localStorage.getItem('aiTrackerDraft');
+      if (raw) {
+        const d = JSON.parse(raw);
+        if (d && d.form) this.setState({ form: Object.assign({}, this.state.form, d.form), draftAt: d.at });
+      }
+    } catch (e) {}
+  }
+
+  seed() {
+    const out = [];
+    const months = ['2026-06', '2026-07', '2026-08'];
+    let i = 0;
+    this.approachesData.forEach((a, ai) => {
+      const [code, stage, title, bu, bt, n] = a;
+      for (let k = 0; k < n; k++) {
+        const jitter = () => (this.rnd() < 0.35 ? (this.rnd() < 0.5 ? -1 : 1) : 0);
+        const drift = ai % 3 === 0 ? 0 : 0;
+        const u = Math.max(1, Math.min(5, bu + jitter() + drift));
+        const t = Math.max(1, Math.min(5, bt + jitter()));
+        const user = this.usersData[(i + ai) % 4][0];
+        const month = months[Math.floor(this.rnd() * 3)];
+        const day = 1 + Math.floor(this.rnd() * 27);
+        out.push({
+          id: 'e' + i, userId: user, approach: code, stage: stage,
+          tool: this.toolsData[i % 4][0], usefulness: u, trust: t,
+          taskRef: 'FE-' + (1000 + ((i * 7) % 90)),
+          note: this.notesPool[Math.floor(this.rnd() * this.notesPool.length)],
+          month: month, day: day,
+          daysAgo: month === '2026-08' ? 5 - Math.floor(this.rnd() * 5) : 40
+        });
+        i++;
+      }
+    });
+    return out;
+  }
+
+  uLabels = ['Помешало, потратил время впустую', 'Пользы почти не было', 'Немного помогло', 'Заметно ускорило', 'Сэкономило часы'];
+  tLabels = ['Выкинул полностью', 'Переписал большую часть', 'Существенно дорабатывал', 'Мелкие правки', 'Взял как есть'];
+  monthTitles = { '2026-06': 'Июнь 2026', '2026-07': 'Июль 2026', '2026-08': 'Август 2026' };
+
+  stageTitle(code) { const s = this.stagesData.find(x => x[0] === code); return s ? s[1] : code; }
+  approachTitle(code) { const a = this.approachesData.find(x => x[0] === code); return a ? a[2] : 'Другой подход'; }
+  avg(arr) { return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0; }
+  f1(x) { return x.toFixed(1); }
+  median(arr) {
+    if (!arr.length) return 0;
+    const s = arr.slice().sort((a, b) => a - b), m = Math.floor(s.length / 2);
+    return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+  }
+  live() { return this.state.entries.filter(e => !e.deletedAt); }
+
+  setForm(patch) {
+    const form = Object.assign({}, this.state.form, patch);
+    this.setState({ form: form, draftAt: Date.now() });
+    try { localStorage.setItem('aiTrackerDraft', JSON.stringify({ form: form, at: Date.now() })); } catch (e) {}
+  }
+
+  flash(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: '' }), 2200);
+  }
+
+  trustColor(v) { return v < 2.6 ? 'var(--bad)' : v < 3.6 ? 'var(--warn)' : 'var(--color-accent)'; }
+
+  chipStyle(on) {
+    return on
+      ? { bg: 'var(--color-accent-900)', fg: 'var(--color-accent)', bd: 'var(--color-accent-700)' }
+      : { bg: 'var(--color-bg)', fg: 'var(--color-neutral-400)', bd: 'var(--color-neutral-800)' };
+  }
+
+  approachStats() {
+    const live = this.live();
+    return this.approachesData.map(a => {
+      const es = live.filter(e => e.approach === a[0]);
+      return {
+        code: a[0], stage: a[1], title: a[2], n: es.length,
+        avgU: this.avg(es.map(e => e.usefulness)),
+        avgT: this.avg(es.map(e => e.trust)),
+        reach: new Set(es.map(e => e.userId)).size
+      };
+    }).filter(s => s.n > 0);
+  }
+
+  renderVals() {
+    const st = this.state, live = this.live();
+    const me = this.usersData.find(u => u[0] === st.userId);
+    const stats = this.approachStats();
+
+    const tabsDef = [['entry', 'Быстрый ввод'], ['mine', 'Мои записи'], ['dashboard', 'Дашборд'], ['admin', 'Администрирование']];
+    const tabs = tabsDef.map(t => ({
+      title: t[1], bg: st.screen === t[0] ? 'var(--color-neutral-900)' : 'transparent',
+      fg: st.screen === t[0] ? 'var(--color-text)' : 'var(--color-neutral-400)',
+      go: () => this.setState({ screen: t[0], selected: null })
+    }));
+
+    const layoutChips = [['a', 'A · Панель'], ['b', 'B · Поток'], ['c', 'C · Три колонки']].map(l => ({
+      title: l[1], bg: st.layout === l[0] ? 'var(--color-neutral-800)' : 'transparent',
+      fg: st.layout === l[0] ? 'var(--color-text)' : 'var(--color-neutral-500)',
+      pick: () => this.setState({ layout: l[0] })
+    }));
+
+    const f = st.form;
+    const stageChips = this.stagesData.map(s => {
+      const c = this.chipStyle(f.stage === s[0]);
+      return { title: s[1], bg: c.bg, fg: c.fg, bd: c.bd, pick: () => this.setForm({ stage: s[0], approach: null, custom: '' }) };
+    });
+
+    const visible = this.approachesData.filter(a => a[1] === f.stage && !st.inactive[a[0]]);
+    const approachChips = visible.map(a => {
+      const c = this.chipStyle(f.approach === a[0]);
+      return { icon: '', title: a[2], description: a[2], bg: c.bg, fg: c.fg, bd: c.bd, pick: () => this.setForm({ approach: a[0], custom: '' }) };
+    });
+    const cOther = this.chipStyle(f.approach === 'other');
+    approachChips.push({ icon: 'ph ph-plus', title: 'Другой подход', description: 'Свободный текст, лид разбирает раз в месяц', bg: cOther.bg, fg: cOther.fg, bd: 'var(--color-neutral-700)', pick: () => this.setForm({ approach: 'other' }) });
+
+    const mk = (val, cur, color) => ({
+      value: val,
+      bg: cur === val ? color.bg : 'var(--color-bg)',
+      fg: cur === val ? color.fg : 'var(--color-neutral-500)',
+      bd: cur === val ? color.bd : 'var(--color-neutral-800)'
+    });
+    const uc = { bg: 'var(--color-accent-900)', fg: 'var(--color-accent)', bd: 'var(--color-accent-700)' };
+    const tc = { bg: 'var(--color-accent-2-900)', fg: 'var(--color-accent-2-400)', bd: 'var(--color-accent-2-700)' };
+    const usefulnessBtns = [1, 2, 3, 4, 5].map(v => Object.assign(mk(v, f.usefulness, uc), { pick: () => this.setForm({ usefulness: v }) }));
+    const trustBtns = [1, 2, 3, 4, 5].map(v => Object.assign(mk(v, f.trust, tc), { pick: () => this.setForm({ trust: v }) }));
+
+    const ready = f.approach && f.usefulness && f.trust && (f.approach !== 'other' || f.custom.trim());
+
+    const myEntries = live.filter(e => e.userId === st.userId);
+    const recent = myEntries.slice(-3).reverse().map(e => ({
+      approach: e.approach === 'other' ? e.custom : this.approachTitle(e.approach),
+      stage: this.stageTitle(e.stage), time: e.justNow ? 'только что' : e.day + '.' + e.month.slice(5),
+      usefulness: e.usefulness, trust: e.trust
+    }));
+
+    // --- Мои записи ---
+    let mineList = myEntries.slice().reverse();
+    if (st.mineStage !== 'all') mineList = mineList.filter(e => e.stage === st.mineStage);
+    if (st.mineMonth !== 'all') mineList = mineList.filter(e => e.month === st.mineMonth);
+    const mineRows = mineList.map(e => ({
+      date: e.justNow ? 'сейчас' : e.day + '.' + e.month.slice(5) + '.26',
+      approach: e.approach === 'other' ? e.custom + ' (свой)' : this.approachTitle(e.approach),
+      meta: this.stageTitle(e.stage) + ' · ' + (this.toolsData.find(t => t[0] === e.tool) || [, ''])[1] + ' · ' + e.taskRef,
+      note: e.note || '', usefulness: e.usefulness, trust: e.trust,
+      editable: e.daysAgo <= 7, locked: e.daysAgo > 7,
+      edit: () => this.flash('Редактирование записи — в течение 7 дней'),
+      remove: () => { this.setState({ entries: st.entries.map(x => x.id === e.id ? Object.assign({}, x, { deletedAt: Date.now() }) : x) }); this.flash('Запись помечена deletedAt'); }
+    }));
+
+    const summarySrc = myEntries.filter(e => st.mineMonth === 'all' || e.month === st.mineMonth);
+    const summaryGroups = this.stagesData.map(s => {
+      const es = summarySrc.filter(e => e.stage === s[0]);
+      if (!es.length) return null;
+      const byApproach = {};
+      es.forEach(e => { const k = e.approach; (byApproach[k] = byApproach[k] || []).push(e); });
+      const rows = Object.keys(byApproach).map(k => {
+        const g = byApproach[k], u = this.avg(g.map(x => x.usefulness)), t = this.avg(g.map(x => x.trust));
+        const low = g.length < 5;
+        return {
+          approach: k === 'other' ? g[0].custom : this.approachTitle(k),
+          stat: 'N ' + g.length + ' · П ' + this.f1(u) + ' · Д ' + this.f1(t) + (low ? ' · мало данных' : ''),
+          color: low ? 'var(--color-neutral-600)' : 'var(--color-neutral-400)',
+          note: (g.find(x => x.note) || {}).note || ''
+        };
+      });
+      return { stage: s[1], n: es.length, rows: rows };
+    }).filter(Boolean);
+
+    // --- Дашборд ---
+    const medN = this.median(stats.map(s => s.n));
+    const medU = this.median(stats.map(s => s.avgU));
+    const maxN = Math.max.apply(null, stats.map(s => s.n).concat([1]));
+    const points = stats.map(s => ({
+      x: 8 + (s.n / maxN) * 84,
+      y: 92 - ((s.avgU - 1) / 4) * 84,
+      size: 10 + Math.min(20, s.n * 1.1),
+      fill: 'color-mix(in srgb, ' + this.trustColor(s.avgT) + ' 40%, transparent)',
+      stroke: this.trustColor(s.avgT),
+      tip: s.title + ' · N ' + s.n + ' · польза ' + this.f1(s.avgU) + ' · доверие ' + this.f1(s.avgT),
+      pick: () => this.setState({ selected: s.code })
+    }));
+    const quadrantLabels = [
+      { text: 'редко + полезно → продвигать', left: '0', top: '0', right: 'auto', bottom: 'auto', align: 'left' },
+      { text: 'часто + полезно → закрепить', left: 'auto', top: '0', right: '0', bottom: 'auto', align: 'right' },
+      { text: 'редко + бесполезно → отбросить', left: '0', top: 'auto', right: 'auto', bottom: '0', align: 'left' },
+      { text: 'часто + бесполезно → разбираться', left: 'auto', top: 'auto', right: '0', bottom: '0', align: 'right' }
+    ];
+
+    const maxCov = Math.max.apply(null, this.stagesData.map(s => live.filter(e => e.stage === s[0]).length).concat([1]));
+    const coverage = this.stagesData.map(s => {
+      const n = live.filter(e => e.stage === s[0]).length;
+      const low = n < 5;
+      return {
+        title: s[1], pct: Math.max(2, (n / maxCov) * 100),
+        color: low ? 'var(--warn)' : 'var(--color-accent)',
+        titleColor: low ? 'var(--warn)' : 'var(--color-neutral-300)',
+        label: 'N ' + n,
+        warnIcon: low ? 'ph ph-warning' : '',
+        noteColor: low ? 'var(--warn)' : 'var(--color-neutral-500)'
+      };
+    });
+
+    const monthKeys = ['2026-06', '2026-07', '2026-08'];
+    const dynSrc = st.dynStage === 'all' ? live : live.filter(e => e.stage === st.dynStage);
+    const dyn = monthKeys.map(m => {
+      const es = dynSrc.filter(e => e.month === m);
+      return { key: m, n: es.length, v: this.avg(es.map(e => e.usefulness)) };
+    });
+    const dynDots = dyn.map((d, i) => ({
+      x: 6 + i * 44, y: d.n ? 95 - ((d.v - 1) / 4) * 90 : 50,
+      label: this.monthTitles[d.key].split(' ')[0],
+      value: d.n ? this.f1(d.v) : '—', n: d.n,
+      color: d.n < 5 ? 'var(--color-neutral-600)' : 'var(--color-accent)'
+    }));
+    const dynPoints = dynDots.map(d => (d.x / 100 * 300).toFixed(1) + ',' + (d.y / 100 * 150).toFixed(1)).join(' ');
+
+    const spread = stats.filter(s => s.reach > 1).map(s => {
+      const perUser = this.usersData.map(u => {
+        const es = live.filter(e => e.approach === s.code && e.userId === u[0]);
+        return es.length ? this.avg(es.map(e => e.usefulness)) : null;
+      }).filter(v => v !== null);
+      const min = Math.min.apply(null, perUser), max = Math.max.apply(null, perUser);
+      return {
+        title: s.title, delta: '±' + this.f1((max - min) / 2), d: max - min,
+        left: ((min - 1) / 4) * 100, width: Math.max(2, ((max - min) / 4) * 100),
+        color: max - min >= 2 ? 'var(--warn)' : 'var(--color-neutral-600)'
+      };
+    }).sort((a, b) => b.d - a.d).slice(0, 8);
+
+    const cols = [['title', 'Подход', 'left'], ['stage', 'Стадия', 'left'], ['n', 'N', 'right'], ['avgU', 'Польза', 'right'], ['avgT', 'Доверие', 'right'], ['reach', 'Охват', 'right'], ['flag', '', 'left']];
+    const columns = cols.map(c => ({
+      title: c[1],
+      sortIcon: st.sortKey === c[0] ? (st.sortDir === 1 ? 'ph ph-arrow-up' : 'ph ph-arrow-down') : '',
+      align: c[2], color: st.sortKey === c[0] ? 'var(--color-text)' : 'var(--color-neutral-500)',
+      sort: () => this.setState({ sortKey: c[0], sortDir: st.sortKey === c[0] ? -st.sortDir : -1 })
+    }));
+    const tableRows = stats.slice().sort((a, b) => {
+      const k = st.sortKey;
+      const av = k === 'title' ? a.title : k === 'stage' ? this.stageTitle(a.stage) : a[k] || 0;
+      const bv = k === 'title' ? b.title : k === 'stage' ? this.stageTitle(b.stage) : b[k] || 0;
+      return (av > bv ? 1 : av < bv ? -1 : 0) * -st.sortDir;
+    }).map(s => ({
+      title: s.title, stage: this.stageTitle(s.stage), n: s.n,
+      avgU: this.f1(s.avgU), avgT: this.f1(s.avgT), reach: s.reach + '/4',
+      uColor: s.n < 5 ? 'var(--color-neutral-600)' : 'var(--color-neutral-200)', tColor: s.n < 5 ? 'var(--color-neutral-600)' : this.trustColor(s.avgT),
+      flag: s.n < 5 ? 'мало данных' : '',
+      pick: () => this.setState({ selected: s.code })
+    }));
+
+    // --- Админ ---
+    const adminApproaches = this.approachesData.filter(a => st.adminStage === 'all' || !st.adminStage || a[1] === st.adminStage).map(a => {
+      const off = st.inactive[a[0]];
+      return {
+        title: a[2], stage: this.stageTitle(a[1]),
+        n: live.filter(e => e.approach === a[0]).length,
+        badge: st.promoted[a[0]] ? 'isCustom' : '',
+        color: off ? 'var(--color-neutral-600)' : 'var(--color-neutral-200)',
+        btnLabel: off ? 'Включить' : 'Деактивировать',
+        btnColor: off ? 'var(--color-accent)' : 'var(--color-neutral-400)', btnBd: off ? 'var(--color-accent-700)' : 'var(--color-neutral-700)',
+        toggle: () => { const inact = Object.assign({}, st.inactive); if (off) delete inact[a[0]]; else inact[a[0]] = true; this.setState({ inactive: inact }); }
+      };
+    });
+
+    const customQueueData = [
+      ['q1', 'Промпт-шаблон для типовых форм', 'Никита · 4 записи · июль–август'],
+      ['q2', 'Генерация Storybook-стори по компоненту', 'Полина · 3 записи · август'],
+      ['q3', 'Перевод старых промисов в signals', 'Даниил · 1 запись · август']
+    ];
+    const customQueue = customQueueData.map(c => ({
+      text: c[1], meta: c[2],
+      action: st.promoted[c[0]] ? 'В справочнике' : 'Промоутить',
+      promote: () => { this.setState({ promoted: Object.assign({}, st.promoted, { [c[0]]: true }) }); this.flash('Подход добавлен в справочник (isCustom = true)'); }
+    }));
+
+    const nu = st.newUser || { name: '', role: 'dev' };
+    const nuReady = !!nu.name.trim();
+    const newUserRoles = [['dev', 'dev — разработчик'], ['lead', 'lead — тимлид']].map(r => {
+      const c = this.chipStyle(nu.role === r[0]);
+      return { title: r[1], bg: c.bg, fg: c.fg, bd: c.bd, pick: () => this.setState({ newUser: Object.assign({}, nu, { role: r[0] }) }) };
+    });
+
+    const adminUsers = this.usersData.map(u => {
+      const off = st.inactiveUsers[u[0]];
+      const n = live.filter(e => e.userId === u[0]).length;
+      return {
+        name: u[1], meta: u[2] + ' · ' + (u[3] || '—') + ' · ' + n + ' записей',
+        color: off ? 'var(--color-neutral-600)' : 'var(--color-neutral-200)',
+        btnLabel: off ? 'Активировать' : 'Деактивировать',
+        btnColor: off ? 'var(--color-accent)' : 'var(--color-neutral-400)', btnBd: off ? 'var(--color-accent-700)' : 'var(--color-neutral-700)',
+        toggle: () => { const m = Object.assign({}, st.inactiveUsers); if (off) delete m[u[0]]; else m[u[0]] = true; this.setState({ inactiveUsers: m }); }
+      };
+    });
+
+    // --- Drawer ---
+    const sel = st.selected ? stats.find(s => s.code === st.selected) : null;
+    const drawerEntries = sel ? live.filter(e => e.approach === sel.code).map(e => ({
+      user: (this.usersData.find(u => u[0] === e.userId) || [, ''])[1],
+      meta: e.day + '.' + e.month.slice(5) + ' · ' + (this.toolsData.find(t => t[0] === e.tool) || [, ''])[1] + ' · ' + e.taskRef,
+      usefulness: e.usefulness, trust: e.trust, note: e.note || ''
+    })) : [];
+
+    const draftDirty = f.approach || f.usefulness || f.trust || f.taskRef || f.note;
+
+    const lf = st.loginForm;
+    const loginReady = !!(lf.login.trim() && lf.pass.trim());
+    const doLogin = () => {
+      const u = this.usersData.find(x => x[3] === lf.login.trim().toLowerCase() && x[4] === lf.pass.trim());
+      if (!u) { this.setState({ loginForm: Object.assign({}, lf, { error: 'Неверный логин или пароль' }) }); return; }
+      if (st.inactiveUsers[u[0]]) { this.setState({ loginForm: Object.assign({}, lf, { error: 'Участник деактивирован' }) }); return; }
+      this.setState({ authed: true, userId: u[0], screen: 'entry', loginForm: { login: '', pass: '', error: '' } });
+    };
+
+    return {
+      authed: st.authed, isLogin: !st.authed,
+      loginValue: lf.login, loginPass: lf.pass, loginError: lf.error,
+      setLoginValue: e => this.setState({ loginForm: Object.assign({}, lf, { login: e.target.value, error: '' }) }),
+      setLoginPass: e => this.setState({ loginForm: Object.assign({}, lf, { pass: e.target.value, error: '' }) }),
+      loginDisabled: !loginReady,
+      loginBd: loginReady ? 'var(--color-accent-700)' : 'var(--color-neutral-800)',
+      loginBg: loginReady ? 'var(--color-accent-900)' : 'transparent',
+      loginFg: loginReady ? 'var(--color-accent)' : 'var(--color-neutral-600)',
+      submitLogin: doLogin,
+      loginKey: e => { if (e.key === 'Enter' && loginReady) doLogin(); },
+      currentUser: me[1], currentRole: me[2],
+      logout: () => this.setState({ authed: false, screen: 'entry' }),
+      themeOptions: this.themes.map(t => ({ key: t.key, title: t.title })),
+      theme: st.theme || 'nocturne',
+      setTheme: e => {
+        const k = e.target.value;
+        this.setState({ theme: k });
+        this.applyTheme(k);
+        try { localStorage.setItem('aiTrackerTheme', k); } catch (err) {}
+      },
+      tabs: tabs, layoutChips: layoutChips,
+      isEntry: st.authed && st.screen === 'entry', isMine: st.authed && st.screen === 'mine',
+      isDash: st.authed && st.screen === 'dashboard', isAdmin: st.authed && st.screen === 'admin',
+      isLayoutA: st.layout === 'a', isLayoutB: st.layout === 'b', isLayoutC: st.layout === 'c',
+
+      stages: this.stagesData.map(s => ({ code: s[0], title: s[1] })),
+      tools: this.toolsData.map(t => ({ code: t[0], title: t[1] })),
+      months: Object.keys(this.monthTitles).map(k => ({ key: k, title: this.monthTitles[k] })),
+
+      stageChips: stageChips, approachChips: approachChips,
+      approachHint: 'отфильтровано по стадии «' + this.stageTitle(f.stage) + '»',
+      isCustom: f.approach === 'other', customText: f.custom,
+      setCustom: e => this.setForm({ custom: e.target.value }),
+      usefulnessBtns: usefulnessBtns, trustBtns: trustBtns,
+      usefulnessLabel: f.usefulness ? this.uLabels[f.usefulness - 1] : 'не выбрано',
+      trustLabel: f.trust ? this.tLabels[f.trust - 1] : 'не выбрано',
+      usefulnessScale: this.uLabels.map((l, i) => ({ v: i + 1, label: l })),
+      trustScale: this.tLabels.map((l, i) => ({ v: i + 1, label: l })),
+      tool: f.tool, setTool: e => this.setForm({ tool: e.target.value }),
+      taskRef: f.taskRef, setTaskRef: e => this.setForm({ taskRef: e.target.value }),
+      note: f.note, setNote: e => this.setForm({ note: e.target.value }),
+      noteOpen: f.noteOpen, toggleNote: () => this.setForm({ noteOpen: !f.noteOpen }),
+      noteToggleLabel: f.noteOpen ? 'Свернуть заметку' : 'Добавить заметку',
+      noteToggleIcon: f.noteOpen ? 'ph ph-minus' : 'ph ph-plus',
+      saveDisabled: !ready, saveBg: ready ? 'var(--color-accent-900)' : 'transparent', saveFg: ready ? 'var(--color-accent)' : 'var(--color-neutral-600)', saveBd: ready ? 'var(--color-accent-700)' : 'var(--color-neutral-800)',
+      saveHint: ready ? 'Стадия и инструмент останутся выбранными' : 'Нужны подход, польза и доверие',
+      draftLabel: draftDirty ? 'черновик сохранён локально' : 'черновик пуст',
+      save: () => {
+        if (!ready) return;
+        const ne = {
+          id: 'n' + Date.now(), userId: st.userId, approach: f.approach, custom: f.custom,
+          stage: f.stage, tool: f.tool, usefulness: f.usefulness, trust: f.trust,
+          taskRef: f.taskRef || '—', note: f.note, month: '2026-08', day: 5, daysAgo: 0, justNow: true
+        };
+        this.setState({ entries: st.entries.concat([ne]) });
+        this.setForm({ approach: null, custom: '', usefulness: 0, trust: 0, taskRef: '', note: '', noteOpen: false });
+        try { localStorage.removeItem('aiTrackerDraft'); } catch (e) {}
+        this.flash('Записано. Стадия и инструмент сохранены.');
+      },
+      reset: () => { this.setForm({ approach: null, custom: '', usefulness: 0, trust: 0, taskRef: '', note: '', noteOpen: false }); },
+      recent: recent,
+
+      mineSubtitle: me[1] + ' · ' + myEntries.length + ' записей за пилот · редактирование в течение 7 дней',
+      mineStage: st.mineStage, setMineStage: e => this.setState({ mineStage: e.target.value }),
+      mineMonth: st.mineMonth, setMineMonth: e => this.setState({ mineMonth: e.target.value }),
+      mineCountLabel: 'показано ' + mineRows.length,
+      mineList: mineRows, summaryGroups: summaryGroups,
+      summaryPeriod: st.mineMonth === 'all' ? 'Весь пилот' : this.monthTitles[st.mineMonth],
+      copyLabel: st.copied ? 'Скопировано' : 'Копировать текстом',
+      copySummary: () => {
+        const txt = summaryGroups.map(g => g.stage + ' (N ' + g.n + ')\n' + g.rows.map(r => '  · ' + r.approach + ' — ' + r.stat + (r.note ? '\n    ' + r.note : '')).join('\n')).join('\n\n');
+        try { navigator.clipboard.writeText(txt); } catch (e) {}
+        this.setState({ copied: true });
+        setTimeout(() => this.setState({ copied: false }), 1800);
+      },
+
+      dashSubtitle: live.length + ' записей · 4 участника · ' + stats.length + ' подходов с данными',
+      medianLabel: 'N ' + medN + ' / польза ' + this.f1(medU),
+      medianXPct: 8 + (medN / maxN) * 84, medianYPct: 92 - ((medU - 1) / 4) * 84,
+      points: points, quadrantLabels: quadrantLabels, coverage: coverage,
+      dynStage: st.dynStage, setDynStage: e => this.setState({ dynStage: e.target.value }),
+      dynDots: dynDots, dynPoints: dynPoints, spread: spread,
+      columns: columns, tableRows: tableRows,
+
+      isLead: me[2] === 'lead', notLead: me[2] !== 'lead',
+      adminStage: st.adminStage || 'all', setAdminStage: e => this.setState({ adminStage: e.target.value }),
+      adminApproaches: adminApproaches, customQueue: customQueue, adminUsers: adminUsers,
+      newUserOpen: !!st.newUserOpen,
+      newUserToggleLabel: st.newUserOpen ? 'Отмена' : 'Пользователь',
+      newUserToggleIcon: st.newUserOpen ? 'ph ph-x' : 'ph ph-plus',
+      toggleNewUser: () => this.setState({ newUserOpen: !st.newUserOpen, newUser: { name: '', role: 'dev' } }),
+      newUserName: nu.name, setNewUserName: e => this.setState({ newUser: Object.assign({}, nu, { name: e.target.value }) }),
+      newUserRoles: newUserRoles,
+      createDisabled: !nuReady,
+      createBd: nuReady ? 'var(--color-accent-700)' : 'var(--color-neutral-800)',
+      createBg: nuReady ? 'var(--color-accent-900)' : 'transparent',
+      createFg: nuReady ? 'var(--color-accent)' : 'var(--color-neutral-600)',
+      createHint: nuReady ? 'Появится в списке и в переключателе входа' : 'Нужно имя',
+      createUser: () => {
+        if (!nuReady) return;
+        const name = nu.name.trim();
+        const login = this.genLogin(name), pass = this.genPassword();
+        this.usersData = this.usersData.concat([['u' + (this.usersData.length + 1), name, nu.role, login, pass]]);
+        this.setState({ newUserOpen: false, newUser: { name: '', role: 'dev' }, createdCreds: { name: name, role: nu.role, login: login, pass: pass } });
+        this.flash('Участник создан, выданы логин и пароль');
+      },
+      createdCreds: !!st.createdCreds,
+      credsName: st.createdCreds ? st.createdCreds.name + ' · ' + st.createdCreds.role : '',
+      credsLogin: st.createdCreds ? st.createdCreds.login : '',
+      credsPass: st.createdCreds ? st.createdCreds.pass : '',
+      copyCreds: () => {
+        const c = st.createdCreds;
+        if (!c) return;
+        try { navigator.clipboard.writeText('Логин: ' + c.login + '\nПароль: ' + c.pass); } catch (e) {}
+        this.flash('Логин и пароль скопированы');
+      },
+      dismissCreds: () => this.setState({ createdCreds: null }),
+      exportLabel: st.exported ? 'CSV сформирован' : 'Экспорт всех записей в CSV',
+      exportCsv: () => {
+        const head = 'id,userId,createdAt,stage,approach,customApproachText,taskRef,tool,usefulness,trust,note';
+        const rows = live.map(e => [e.id, e.userId, e.month + '-' + String(e.day).padStart(2, '0'), e.stage, e.approach, e.custom || '', e.taskRef, e.tool, e.usefulness, e.trust, '"' + (e.note || '') + '"'].join(','));
+        const blob = new Blob([head + '\n' + rows.join('\n')], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = 'ai-entries.csv'; a.click();
+        this.setState({ exported: true });
+        this.flash('CSV: ' + live.length + ' записей, все поля');
+      },
+      addApproach: () => this.flash('Форма добавления подхода в справочник'),
+
+      drawerOpen: !!sel, drawerTitle: sel ? sel.title : '',
+      drawerMeta: sel ? this.stageTitle(sel.stage) + ' · N ' + sel.n + ' · польза ' + this.f1(sel.avgU) + ' · доверие ' + this.f1(sel.avgT) + ' · охват ' + sel.reach + '/4' : '',
+      drawerEntries: drawerEntries, closeDrawer: () => this.setState({ selected: null }),
+      toast: st.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
