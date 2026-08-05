@@ -8,6 +8,7 @@ import { entryRoutes } from './routes/entries.js'
 import { userRoutes } from './routes/users.js'
 import { adminApproachRoutes } from './routes/adminApproaches.js'
 import { exportRoutes } from './routes/exportCsv.js'
+import { dashboardRoutes } from './routes/dashboard.js'
 
 export interface Deps {
   prisma: PrismaClient
@@ -24,6 +25,7 @@ export function buildApp(deps: Deps) {
   app.register(userRoutes)
   app.register(adminApproachRoutes)
   app.register(exportRoutes)
+  app.register(dashboardRoutes)
   app.get('/api/health', async () => ({ ok: true }))
   return app
 }
