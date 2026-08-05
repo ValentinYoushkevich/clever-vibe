@@ -1,6 +1,7 @@
 import { buildApp } from './app.js'
+import { prisma } from './prisma.js'
 
-const app = buildApp({ prisma: null as never }) // план 01 передаст настоящий PrismaClient
+const app = buildApp({ prisma })
 
 const port = Number(process.env.PORT ?? 3000)
 app.listen({ port, host: '0.0.0.0' }).catch((err) => {

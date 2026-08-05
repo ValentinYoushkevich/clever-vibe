@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  dev
+  lead
+  admin
+  observer
+}
+
+model User {
+  id          String   @id @default(uuid())
+  name        String
+  login       String   @unique
+  // Открытый пароль — осознанное решение ТЗ §2.1: генерируется системой,
+  // постоянно виден лиду в админке, что заменяет процедуру сброса.
+  password    String
+  role        Role
+  createdById String?
+  createdBy   User?    @relation("CreatedUsers", fields: [createdById], references: [id])
+  created     User[]   @relation("CreatedUsers")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  entries     Entry[]
+}
+
+model Stage {
+  id         String     @id @default(uuid())
+  code       String     @unique
+  title      String
+  order      Int
+  active     Boolean    @default(true)
+  approaches Approach[]
+  entries    Entry[]
+}
+
+model Approach {
+  id               String  @id @default(uuid())
+  code             String  @unique
+  stageId          String
+  stage            Stage   @relation(fields: [stageId], references: [id])
+  title            String
+  description      String?
+  order            Int
+  active           Boolean @default(true)
+  isCustom         Boolean @default(false)
+  // Нормализованный текст «другого подхода», из которого подход был промоучен (план 07)
+  promotedFromText String?
+  entries          Entry[]
+}
+
+model Tool {
+  id      String  @id @default(uuid())
+  code    String  @unique
+  title   String
+  active  Boolean @default(true)
+  entries Entry[]
+}
+
+model Entry {
+  id                 String    @id @default(uuid())
+  userId             String
+  user               User      @relation(fields: [userId], references: [id])
+  createdAt          DateTime  @default(now())
+  stageId            String
+  stage              Stage     @relation(fields: [stageId], references: [id])
+  approachId         String?
+  approach           Approach? @relation(fields: [approachId], references: [id])
+  customApproachText String?
+  taskRef            String?
+  toolId             String
+  tool               Tool      @relation(fields: [toolId], references: [id])
+  usefulness         Int // 1–5
+  trust              Int // 1–5
+  note               String?
+  deletedAt          DateTime? // физического удаления нет (ТЗ §2.4)
+
+  @@index([userId])
+  @@index([stageId])
+  @@index([approachId])
+  @@index([deletedAt])
+}

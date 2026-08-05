@@ -1,8 +1,6 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
-
-// TODO(план 01): заменить на import type { PrismaClient } from '@prisma/client'
-type PrismaClient = unknown
+import type { PrismaClient } from '@prisma/client'
 
 export interface Deps {
   prisma: PrismaClient
