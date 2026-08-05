@@ -5,6 +5,16 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Clever Vibe</title>
+    <script>
+      // Тема применяется до первого рендера — без вспышки (ТЗ §3.6).
+      // Дублирует константы web/src/lib/theme.ts — менять синхронно.
+      ;(function () {
+        var saved = localStorage.getItem('aiTrackerTheme')
+        var theme = ['nocturne', 'black', 'mint'].indexOf(saved) >= 0 ? saved : 'nocturne'
+        document.documentElement.setAttribute('data-theme', theme)
+        if (theme !== 'mint') document.documentElement.setAttribute('data-dark', '')
+      })()
+    </script>
   </head>
   <body>
     <div id="app"></div>
