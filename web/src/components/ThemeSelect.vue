@@ -13,10 +13,16 @@ function onChange(e: Event) {
 
 <template>
   <label class="inline-flex items-center gap-(--space-2)">
-    <i class="pi pi-palette" style="color: var(--color-neutral-500); font-size: 13px" />
+    <i class="pi pi-palette" style="color: var(--color-neutral-500); font-size: 16px" />
     <select
       class="input"
-      style="width: auto; padding: var(--space-2) var(--space-3)"
+      style="
+        width: auto;
+        padding: var(--space-2);
+        background: var(--color-surface);
+        border-color: var(--color-neutral-800);
+        font-size: 14px;
+      "
       :value="current"
       aria-label="Тема"
       @change="onChange"

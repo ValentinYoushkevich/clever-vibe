@@ -3,6 +3,8 @@ import { onMounted, ref, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { api } from '../../api/client.js'
 import { useAuth } from '../../stores/auth.js'
+import { plural } from '../../lib/format.js'
+import { canDeleteUser } from '../../lib/permissions.js'
 
 interface AdminUser {
   id: string
@@ -11,6 +13,7 @@ interface AdminUser {
   role: 'dev' | 'lead' | 'admin' | 'observer'
   active: boolean
   createdById: string | null
+  entriesCount: number
   password?: string
 }
 
@@ -35,14 +38,17 @@ const roleOptions = computed(() =>
   auth.user?.role === 'admin' ? (['dev', 'lead', 'admin', 'observer'] as const) : (['dev'] as const),
 )
 const ROLE_TITLES: Record<AdminUser['role'], string> = {
-  dev: 'разработчик',
-  lead: 'тимлид',
-  admin: 'админ',
-  observer: 'наблюдатель',
+  dev: 'dev — разработчик',
+  lead: 'lead — тимлид',
+  admin: 'admin — администратор',
+  observer: 'observer — наблюдатель',
 }
 
 // Матрица деактивации: лид — только dev, админ — всех (сервер проверяет то же)
 const canToggle = (u: AdminUser) => u.role === 'dev' || auth.user?.role === 'admin'
+// Удаление — только админ и только не себя (сервер проверяет то же)
+const canRemove = (u: AdminUser) =>
+  !!auth.user && canDeleteUser(auth.user.role) && u.id !== auth.user.id
 
 async function load() {
   users.value = await api<AdminUser[]>('/api/users')
@@ -70,6 +76,15 @@ async function toggleActive(u: AdminUser) {
   await load()
 }
 
+async function remove(u: AdminUser) {
+  const n = u.entriesCount
+  const tail = n ? ` Вместе с ним удалятся ${plural(n, 'его запись', 'его записи', 'его записей')}.` : ''
+  if (!confirm(`Удалить участника «${u.name}» навсегда?${tail} Отменить будет нельзя.`)) return
+  await api(`/api/users/${u.id}`, { method: 'DELETE' })
+  toast.add({ severity: 'success', summary: 'Участник удалён', life: 2200 })
+  await load()
+}
+
 async function regenerate(u: AdminUser) {
   await api<{ password: string }>(`/api/users/${u.id}/password`, { method: 'POST' })
   toast.add({ severity: 'success', summary: 'Пароль перегенерирован', life: 2200 })
@@ -80,96 +95,230 @@ onMounted(load)
 </script>
 
 <template>
-  <div class="card flex flex-col gap-(--space-4)">
-    <div class="flex items-center gap-(--space-3)">
-      <h2>Пользователи</h2>
-      <button class="btn btn-secondary ml-auto" @click="showForm = !showForm">
-        <i class="pi pi-plus" /> Пользователь
+  <div class="card">
+    <div class="flex items-center justify-between" style="margin-bottom: 14px">
+      <h2 style="margin: 0; font-size: 16.5px; font-weight: 600">Пользователи</h2>
+      <button
+        type="button"
+        class="inline-flex items-center gap-(--space-2)"
+        style="
+          padding: var(--space-2) var(--space-4);
+          border-radius: var(--radius-md);
+          border: 1px solid var(--color-accent-700);
+          background: var(--color-accent-900);
+          color: var(--color-accent);
+          font-size: 14px;
+          cursor: pointer;
+        "
+        @click="showForm = !showForm"
+      >
+        <i :class="showForm ? 'pi pi-times' : 'pi pi-plus'" style="font-size: 13px" />{{
+          showForm ? 'Отмена' : 'Пользователь'
+        }}
       </button>
-    </div>
-
-    <div v-if="showForm" class="flex items-end gap-(--space-3)">
-      <label class="flex flex-col gap-(--space-2)" style="flex: 1">
-        <span class="section-label">Имя</span>
-        <input v-model="newName" class="input" placeholder="Имя Фамилия" />
-      </label>
-      <label class="flex flex-col gap-(--space-2)" style="width: 160px">
-        <span class="section-label">Роль</span>
-        <select v-model="newRole" class="input">
-          <option v-for="r in roleOptions" :key="r" :value="r">{{ ROLE_TITLES[r] }}</option>
-        </select>
-      </label>
-      <button class="btn btn-accent" :disabled="!newName.trim()" @click="create">Создать</button>
     </div>
 
     <!-- Выданные доступы — акцентная плашка (дизайн-док §6) -->
     <div
       v-if="created"
-      class="flex items-center gap-(--space-3)"
       style="
+        padding: var(--space-4);
+        margin-bottom: var(--space-4);
         background: var(--color-accent-900);
         border: 1px solid var(--color-accent-700);
         border-radius: var(--radius-md);
-        padding: var(--space-3) var(--space-4);
-        color: var(--color-accent);
       "
     >
-      <span
-        >{{ created.name }}:
-        <b class="tnum">{{ created.login }} / {{ created.password }}</b></span
+      <div
+        class="flex items-center justify-between gap-(--space-3)"
+        style="margin-bottom: var(--space-3)"
       >
-      <button class="btn btn-secondary" @click="copy(`${created.login} / ${created.password}`)">
-        <i class="pi pi-copy" /> Скопировать
+        <span style="font-size: 14px; color: var(--color-accent)">
+          Выданы доступы — {{ created.name }}
+        </span>
+        <button
+          type="button"
+          aria-label="Скрыть"
+          style="background: none; border: 0; color: var(--color-accent); cursor: pointer; display: flex"
+          @click="created = null"
+        >
+          <i class="pi pi-times" style="font-size: 14px" />
+        </button>
+      </div>
+      <div class="tnum flex flex-wrap gap-(--space-6)" style="font-size: 15px; margin-bottom: var(--space-3)">
+        <span>Логин: <b style="font-weight: 500">{{ created.login }}</b></span>
+        <span>Пароль: <b style="font-weight: 500">{{ created.password }}</b></span>
+      </div>
+      <button
+        type="button"
+        class="inline-flex items-center gap-(--space-2)"
+        style="
+          padding: var(--space-2) var(--space-4);
+          border: 1px solid var(--color-accent);
+          border-radius: var(--radius-md);
+          background: transparent;
+          color: var(--color-accent-300);
+          font-size: 14px;
+          cursor: pointer;
+        "
+        @click="copy(`${created.login} / ${created.password}`)"
+      >
+        <i class="pi pi-copy" style="font-size: 13px" />Скопировать
       </button>
-      <button class="btn btn-secondary" @click="created = null"><i class="pi pi-times" /></button>
     </div>
 
     <div
-      v-for="u in users"
-      :key="u.id"
-      class="grid items-center gap-(--space-3)"
+      v-if="showForm"
+      class="flex flex-col gap-(--space-3)"
       style="
-        grid-template-columns: minmax(0, 1fr) 110px 150px 170px;
-        border-top: 1px solid var(--color-neutral-900);
-        padding-top: var(--space-3);
+        padding: var(--space-4);
+        margin-bottom: var(--space-4);
+        background: var(--color-bg);
+        border: 1px solid var(--color-accent-700);
+        border-radius: var(--radius-md);
       "
     >
-      <div class="flex flex-col">
-        <span :style="u.active ? {} : { color: 'var(--color-neutral-600)' }">{{ u.name }}</span>
-        <span class="meta tnum">{{ u.login }}</span>
+      <input
+        v-model="newName"
+        class="input"
+        style="background: var(--color-surface)"
+        placeholder="Имя участника"
+      />
+      <div class="flex flex-wrap gap-(--space-2)">
+        <button
+          v-for="r in roleOptions"
+          :key="r"
+          type="button"
+          class="chip"
+          :class="{ 'is-active': newRole === r }"
+          style="flex: 1; justify-content: center; font-size: 14.5px"
+          @click="newRole = r"
+        >
+          {{ ROLE_TITLES[r] }}
+        </button>
       </div>
-      <span class="meta">{{ ROLE_TITLES[u.role] }}</span>
-      <div class="flex items-center gap-(--space-2)">
-        <template v-if="u.password">
-          <span class="meta tnum">{{ u.password }}</span>
-          <button
-            class="btn btn-secondary"
-            style="padding: 2px var(--space-2)"
-            @click="copy(u.password!)"
+      <div class="flex items-center gap-(--space-4)">
+        <button
+          type="button"
+          class="btn"
+          :class="{ 'btn-accent': newName.trim() }"
+          style="font-size: 14.5px"
+          :disabled="!newName.trim()"
+          @click="create"
+        >
+          Создать
+        </button>
+        <span style="font-size: 13.5px; color: var(--color-neutral-500)">
+          {{ newName.trim() ? 'Логин и пароль система выдаст сама' : 'Нужно имя' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-(--space-3)">
+      <div
+        v-for="u in users"
+        :key="u.id"
+        style="
+          padding: var(--space-4);
+          background: var(--color-bg);
+          border: 1px solid var(--color-neutral-800);
+          border-radius: var(--radius-md);
+        "
+      >
+        <div style="min-width: 0">
+          <div
+            style="font-size: 15px"
+            :style="{ color: u.active ? 'var(--color-neutral-200)' : 'var(--color-neutral-600)' }"
           >
-            <i class="pi pi-copy" style="font-size: 11px" />
+            {{ u.name }}
+          </div>
+          <div class="tnum" style="font-size: 12.5px; color: var(--color-neutral-500)">
+            {{ u.role }} · {{ u.login }} · {{ plural(u.entriesCount, 'запись', 'записи', 'записей') }}
+          </div>
+          <div
+            v-if="u.password"
+            class="tnum flex items-center gap-(--space-2)"
+            style="font-size: 12.5px; color: var(--color-neutral-500); margin-top: 2px"
+          >
+            <span>{{ u.password }}</span>
+            <button
+              type="button"
+              aria-label="Скопировать пароль"
+              style="background: none; border: 0; color: var(--color-neutral-400); cursor: pointer; display: flex"
+              @click="copy(u.password!)"
+            >
+              <i class="pi pi-copy" style="font-size: 13px" />
+            </button>
+            <button
+              type="button"
+              style="background: none; border: 0; color: var(--color-neutral-400); font-size: 12.5px; cursor: pointer"
+              @click="regenerate(u)"
+            >
+              новый
+            </button>
+          </div>
+        </div>
+        <!-- Кнопки под текстом, справа: иначе они сжимают строку с логином и числом записей -->
+        <div
+          v-if="canToggle(u) || canRemove(u)"
+          class="flex justify-end gap-(--space-2)"
+          style="margin-top: var(--space-3)"
+        >
+          <button
+            v-if="canToggle(u)"
+            type="button"
+            style="
+              padding: var(--space-2) var(--space-3);
+              border-radius: var(--radius-md);
+              background: var(--color-bg);
+              font-size: 13.5px;
+              cursor: pointer;
+              border: 1px solid;
+              white-space: nowrap;
+            "
+            :style="{
+              color: u.active ? 'var(--color-neutral-400)' : 'var(--color-accent)',
+              borderColor: u.active ? 'var(--color-neutral-700)' : 'var(--color-accent-700)',
+            }"
+            @click="toggleActive(u)"
+          >
+            {{ u.active ? 'Деактивировать' : 'Активировать' }}
           </button>
-        </template>
-        <span v-else class="meta">—</span>
+          <!-- Удаление необратимо, поэтому цветом ошибки и всегда правее деактивации -->
+          <button
+            v-if="canRemove(u)"
+            type="button"
+            style="
+              padding: var(--space-2) var(--space-3);
+              border-radius: var(--radius-md);
+              background: var(--color-bg);
+              border: 1px solid var(--bad);
+              color: var(--bad);
+              font-size: 13.5px;
+              cursor: pointer;
+              white-space: nowrap;
+            "
+            @click="remove(u)"
+          >
+            Удалить
+          </button>
+        </div>
       </div>
-      <div class="flex gap-(--space-2) justify-end">
-        <button
-          v-if="u.password"
-          class="btn btn-secondary"
-          style="padding: 2px var(--space-3)"
-          @click="regenerate(u)"
-        >
-          Новый пароль
-        </button>
-        <button
-          v-if="canToggle(u)"
-          class="btn btn-secondary"
-          style="padding: 2px var(--space-3)"
-          @click="toggleActive(u)"
-        >
-          {{ u.active ? 'Деактивировать' : 'Включить' }}
-        </button>
-      </div>
+    </div>
+
+    <div
+      style="
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--color-neutral-800);
+        font-size: 13.5px;
+        color: var(--color-neutral-500);
+        line-height: 1.5;
+      "
+    >
+      Записи не удаляются физически — только
+      <span class="tnum" style="color: var(--color-neutral-400)">deletedAt</span>. Экспорт CSV
+      содержит все поля записей.
     </div>
   </div>
 </template>

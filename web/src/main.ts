@@ -8,6 +8,8 @@ import { CleverVibePreset } from './theme/primevuePreset.js'
 import { applyTheme, getSavedTheme } from './lib/theme.js'
 import { router } from './router.js'
 import { useAuth } from './stores/auth.js'
+import { setUnauthorizedHandler } from './api/client.js'
+import { defaultRoute } from './lib/nav.js'
 
 applyTheme(getSavedTheme()) // синхронизирует data-dark и localStorage
 
@@ -22,6 +24,20 @@ app.use(PrimeVue, {
 app.use(ToastService)
 app.use(router)
 
-// Автовход до монтирования — без мигания формы входа (ТЗ §3.1)
-await useAuth().tryAutoLogin()
+// Автовход: связка из localStorage поднимается синхронно, поэтому форма входа
+// не мигает и старт не ждёт сеть. Профиль сверяется с сервером в фоне;
+// выкидывает из приложения только «Выйти» или отказ сервера (401).
+const auth = useAuth()
+auth.restore()
+setUnauthorizedHandler(() => {
+  auth.logout()
+  void router.push('/login')
+})
+void auth.refresh().then(() => {
+  // Записи прежнего формата (без профиля) логинят уже после ответа сервера
+  if (auth.user && router.currentRoute.value.path === '/login') {
+    void router.push(defaultRoute(auth.user.role))
+  }
+})
+
 app.mount('#app')

@@ -32,27 +32,37 @@ async function submit() {
 </script>
 
 <template>
-  <div class="min-h-full flex flex-col items-center justify-center gap-(--space-6)">
-    <div class="card flex flex-col gap-(--space-4)" style="width: 360px">
-      <div class="flex items-center gap-(--space-3)">
+  <div
+    class="min-h-full flex items-center justify-center"
+    style="padding: var(--space-8)"
+  >
+    <div style="width: 360px">
+      <div
+        class="flex items-center gap-(--space-3)"
+        style="margin-bottom: var(--space-8)"
+      >
         <span
           style="
             width: 9px; height: 9px; border-radius: 50%;
             background: var(--color-accent);
-            box-shadow: 0 0 8px var(--color-accent);
           "
         />
-        <span style="font-weight: 500">Clever Vibe</span>
+        <span style="font-size: 15.5px; font-weight: 600">Clever Vibe</span>
       </div>
-      <h1>Вход</h1>
-      <p class="meta">Логин и пароль выдаёт тимлид при создании участника</p>
-      <form class="flex flex-col gap-(--space-4)" @submit.prevent="submit">
-        <label class="flex flex-col gap-(--space-2)">
-          <span class="section-label">Логин</span>
+      <h1 style="margin: 0 0 var(--space-2); font-size: 22px; font-weight: 600">Вход</h1>
+      <p
+        style="margin: 0 0 var(--space-8); font-size: 15px; color: var(--color-neutral-400)"
+      >
+        Логин и пароль выдаёт тимлид при создании участника.
+      </p>
+
+      <form class="card flex flex-col gap-(--space-4)" @submit.prevent="submit">
+        <label>
+          <div class="section-label" style="margin-bottom: var(--space-2)">Логин</div>
           <input v-model.trim="login" class="input" autocomplete="username" />
         </label>
-        <label class="flex flex-col gap-(--space-2)">
-          <span class="section-label">Пароль</span>
+        <label>
+          <div class="section-label" style="margin-bottom: var(--space-2)">Пароль</div>
           <input
             v-model="password"
             type="password"
@@ -63,20 +73,30 @@ async function submit() {
         <p
           v-if="error"
           class="flex items-center gap-(--space-2)"
-          style="color: var(--bad); font-size: 12.5px"
+          style="margin: 0; color: var(--bad); font-size: 14px"
         >
-          <i class="pi pi-exclamation-triangle" /> {{ error }}
+          <i class="pi pi-exclamation-triangle" style="font-size: 14px" /> {{ error }}
         </p>
         <button
           type="submit"
           class="btn w-full justify-center"
           :class="login && password ? 'btn-accent' : ''"
+          style="padding: var(--space-4) 0; font-size: 15.5px; font-weight: 500"
           :disabled="!login || !password || busy"
         >
           Войти
         </button>
       </form>
+
+      <div
+        class="flex items-center justify-between gap-(--space-4)"
+        style="margin-top: var(--space-6)"
+      >
+        <span style="font-size: 13.5px; color: var(--color-neutral-500)">
+          Внутренний контур · доступ выдаёт тимлид
+        </span>
+        <ThemeSelect />
+      </div>
     </div>
-    <ThemeSelect />
   </div>
 </template>

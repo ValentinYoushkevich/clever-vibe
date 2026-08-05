@@ -9,8 +9,6 @@ const auth = useAuth()
 const router = useRouter()
 const tabs = computed(() => (auth.user ? tabsFor(auth.user.role) : []))
 
-const ROLE_TITLES = { dev: 'разработчик', lead: 'тимлид', admin: 'админ', observer: 'наблюдатель' }
-
 function logout() {
   auth.logout()
   router.push('/login')
@@ -19,7 +17,7 @@ function logout() {
 
 <template>
   <header
-    class="sticky top-0 z-10 flex items-center gap-(--space-6) px-(--space-8)"
+    class="sticky top-0 z-10 flex items-center gap-(--space-8) px-(--space-8)"
     style="
       height: 58px;
       background: color-mix(in srgb, var(--color-bg) 92%, transparent);
@@ -27,22 +25,23 @@ function logout() {
       border-bottom: 1px solid var(--color-neutral-800);
     "
   >
-    <div class="flex items-center gap-(--space-3)">
+    <div class="flex items-center gap-(--space-3)" style="margin-right: 8px">
       <span
         style="
           width: 9px; height: 9px; border-radius: 50%;
           background: var(--color-accent);
-          box-shadow: 0 0 8px var(--color-accent);
+          box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 55%, transparent);
         "
       />
-      <span style="font-weight: 500">Clever Vibe</span>
+      <span style="font-size: 15.5px; font-weight: 600; letter-spacing: 0.01em">Clever Vibe</span>
       <span
-        class="meta"
+        class="tnum"
         style="
           border: 1px solid var(--color-neutral-800);
-          border-radius: var(--radius-sm);
-          padding: 1px var(--space-2);
-          font-size: 10.5px;
+          border-radius: var(--radius-md);
+          padding: var(--space-1) var(--space-2);
+          font-size: 13px;
+          color: var(--color-neutral-500);
         "
         >FE / Angular</span
       >
@@ -52,8 +51,13 @@ function logout() {
         v-for="t in tabs"
         :key="t.path"
         :to="t.path"
-        class="px-(--space-4) py-(--space-2)"
-        style="border-radius: var(--radius-md); color: var(--color-neutral-400); font-size: 13px"
+        class="tab px-(--space-4) py-(--space-3)"
+        style="
+          border-radius: var(--radius-md);
+          color: var(--color-neutral-400);
+          font-size: 15px;
+          font-weight: 500;
+        "
         :style="
           $route.path === t.path
             ? { background: 'var(--color-neutral-900)', color: 'var(--color-text)' }
@@ -62,14 +66,45 @@ function logout() {
         >{{ t.title }}</RouterLink
       >
     </nav>
-    <div class="ml-auto flex items-center gap-(--space-4)">
+    <div class="ml-auto flex items-center gap-(--space-8)">
       <ThemeSelect />
-      <span class="meta" v-if="auth.user">
-        {{ auth.user.name }} · {{ ROLE_TITLES[auth.user.role] }}
-      </span>
-      <button class="btn btn-secondary" title="Выйти" @click="logout">
-        <i class="pi pi-sign-out" />
-      </button>
+      <div class="flex items-center gap-(--space-3)">
+        <div
+          v-if="auth.user"
+          class="flex flex-col items-end"
+          style="line-height: 1.25"
+        >
+          <span style="font-size: 14.5px; font-weight: 500">{{ auth.user.name }}</span>
+          <span style="font-size: 12.5px; color: var(--color-neutral-500)">{{ auth.user.role }}</span>
+        </div>
+        <button
+          type="button"
+          class="logout inline-flex items-center gap-(--space-2)"
+          style="
+            padding: var(--space-2) var(--space-3);
+            border: 1px solid var(--color-neutral-800);
+            border-radius: var(--radius-md);
+            background: transparent;
+            color: var(--color-neutral-400);
+            font-size: 14px;
+            cursor: pointer;
+          "
+          @click="logout"
+        >
+          <i class="pi pi-sign-out" style="font-size: 14px" />Выйти
+        </button>
+      </div>
     </div>
   </header>
 </template>
+
+<style scoped>
+.tab:hover {
+  background: var(--color-neutral-900);
+  color: var(--color-text) !important;
+}
+.logout:hover {
+  border-color: var(--color-accent-700) !important;
+  color: var(--color-accent) !important;
+}
+</style>

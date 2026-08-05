@@ -23,6 +23,13 @@ const showExport = computed(
   () => !!auth.user && canExportCsv(auth.user.role) && !canAccessAdmin(auth.user.role),
 )
 
+const subtitle = computed(() => {
+  const d = data.value
+  if (!d) return ''
+  const withData = d.approaches.filter((a) => a.n > 0).length
+  return `${d.totalEntries} записей · ${d.teamSize} участника · ${withData} подходов с данными`
+})
+
 async function exportCsv() {
   await downloadFile('/api/export.csv', 'clever-vibe-entries.csv')
   toast.add({ severity: 'success', summary: 'CSV выгружен', life: 2200 })
@@ -34,43 +41,72 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="data" class="p-(--space-8) flex flex-col gap-(--space-6)">
-    <div class="flex items-center">
-      <h1>Дашборд</h1>
-      <span class="meta tnum" style="margin-left: var(--space-4)"
-        >всего записей: {{ data.totalEntries }}</span
-      >
-      <button v-if="showExport" class="btn btn-secondary ml-auto" @click="exportCsv">
-        <i class="pi pi-download" /> Экспорт CSV
-      </button>
+  <div v-if="data" class="page" style="max-width: 1440px">
+    <div class="flex items-end justify-between" style="margin-bottom: 20px">
+      <div>
+        <h1 style="margin: 0 0 5px; font-size: 23px; font-weight: 600; letter-spacing: -0.01em">
+          Дашборд
+        </h1>
+        <p style="margin: 0; font-size: 15px; color: var(--color-neutral-400)">{{ subtitle }}</p>
+      </div>
+      <div class="flex items-center gap-(--space-4)">
+        <button
+          v-if="showExport"
+          type="button"
+          class="export-btn inline-flex items-center gap-(--space-2)"
+          style="
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-neutral-700);
+            background: var(--color-bg);
+            color: var(--color-text);
+            font-size: 15px;
+            cursor: pointer;
+          "
+          @click="exportCsv"
+        >
+          <i class="pi pi-download" />Экспорт всех записей в CSV
+        </button>
+        <span style="font-size: 13.5px; color: var(--color-neutral-600)">
+          Рядом со средней всегда N. При N &lt; 5 значение приглушено.
+        </span>
+      </div>
     </div>
 
     <div
       class="grid gap-(--space-6)"
-      style="grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr)"
+      style="grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); margin-bottom: 16px"
     >
       <QuadrantChart
         :approaches="data.approaches"
         :total-entries="data.totalEntries"
         @select="selected = $event"
       />
-      <StageCoverageCard :stages="data.stages" />
+      <div class="flex flex-col gap-(--space-6)">
+        <StageCoverageCard :stages="data.stages" />
+        <TrendCard :monthly="data.monthly" :stages="data.stages" />
+      </div>
     </div>
 
     <div
       class="grid gap-(--space-6)"
       style="grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr)"
     >
-      <TrendCard :monthly="data.monthly" :stages="data.stages" />
       <SpreadCard :spread="data.spread" />
+      <ApproachesTable
+        :approaches="data.approaches"
+        :team-size="data.teamSize"
+        @select="selected = $event"
+      />
     </div>
 
-    <ApproachesTable
-      :approaches="data.approaches"
-      :team-size="data.teamSize"
-      @select="selected = $event"
-    />
-
-    <EntriesDrawer :approach="selected" @close="selected = null" />
+    <EntriesDrawer :approach="selected" :team-size="data.teamSize" @close="selected = null" />
   </div>
 </template>
+
+<style scoped>
+.export-btn:hover {
+  border-color: var(--color-accent) !important;
+  color: var(--color-accent) !important;
+}
+</style>

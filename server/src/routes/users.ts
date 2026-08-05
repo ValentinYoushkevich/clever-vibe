@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { Type } from '@sinclair/typebox'
 import {
-  canAccessAdmin, canCreateUser, canDeactivateUser, canSeePassword, type Role,
+  canAccessAdmin, canCreateUser, canDeactivateUser, canDeleteUser, canSeePassword, type Role,
 } from '../lib/permissions.js'
 import { makeLogin, makePassword } from '../lib/credentials.js'
 
@@ -11,7 +11,10 @@ export async function userRoutes(app: FastifyInstance) {
 
   app.get('/api/users', guard, async (req, reply) => {
     if (!canAccessAdmin(req.user.role)) return reply.code(403).send({ error: 'forbidden' })
-    const users = await prisma.user.findMany({ orderBy: { createdAt: 'asc' } })
+    const users = await prisma.user.findMany({
+      orderBy: { createdAt: 'asc' },
+      include: { _count: { select: { entries: true } } },
+    })
     // Пароль постоянно виден в списке — в границах видимости (ТЗ §3.5)
     return users.map((u) => ({
       id: u.id,
@@ -20,6 +23,7 @@ export async function userRoutes(app: FastifyInstance) {
       role: u.role,
       active: u.active,
       createdById: u.createdById,
+      entriesCount: u._count?.entries ?? 0,
       ...(canSeePassword(req.user, u) ? { password: u.password } : {}),
     }))
   })
@@ -73,6 +77,24 @@ export async function userRoutes(app: FastifyInstance) {
       return { ok: true }
     },
   )
+
+  // Перманентное удаление: участник исчезает вместе со своими записями.
+  // Это единственное место в системе с физическим удалением — записи сами
+  // по себе только помечаются deletedAt (ТЗ §4).
+  app.delete('/api/users/:id', guard, async (req, reply) => {
+    if (!canDeleteUser(req.user.role)) return reply.code(403).send({ error: 'forbidden' })
+    const id = (req.params as { id: string }).id
+    if (id === req.user.id) return reply.code(400).send({ error: 'self_delete' })
+    const target = await prisma.user.findUnique({ where: { id } })
+    if (!target) return reply.code(404).send({ error: 'not_found' })
+    await prisma.$transaction(async (tx) => {
+      await tx.entry.deleteMany({ where: { userId: id } })
+      // Созданные им участники остаются — теряется только ссылка на автора
+      await tx.user.updateMany({ where: { createdById: id }, data: { createdById: null } })
+      await tx.user.delete({ where: { id } })
+    })
+    return reply.code(204).send()
+  })
 
   app.post('/api/users/:id/password', guard, async (req, reply) => {
     const target = await prisma.user.findUnique({

@@ -1,9 +1,9 @@
 export const THEME_KEY = 'aiTrackerTheme'
 
 export const THEMES = [
-  { code: 'nocturne', title: 'Nocturne', dark: true },
-  { code: 'black', title: 'Black', dark: true },
-  { code: 'mint', title: 'Mint', dark: false },
+  { code: 'nocturne', title: 'Nocturne (система)', dark: true },
+  { code: 'black', title: 'Black (зелёный / жёлтый / красный)', dark: true },
+  { code: 'mint', title: 'Mint (светлая)', dark: false },
 ] as const
 
 export type ThemeCode = (typeof THEMES)[number]['code']

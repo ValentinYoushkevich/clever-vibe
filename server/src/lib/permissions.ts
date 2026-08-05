@@ -13,6 +13,9 @@ export const canCreateUser = (creator: Role, target: Role) =>
 export const canDeactivateUser = (actor: Role, target: Role) =>
   actor === 'admin' || (actor === 'lead' && target === 'dev')
 
+// Перманентное удаление участника — только админ; лиду доступна лишь деактивация
+export const canDeleteUser = (actor: Role) => actor === 'admin'
+
 export const canSeePassword = (
   viewer: { id: string; role: Role },
   target: { createdById: string | null },
