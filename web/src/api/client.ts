@@ -23,6 +23,11 @@ export function setCreds(c: Creds | null) {
   creds = c
 }
 
+// Заголовок авторизации для запросов мимо api() — например, скачивание файлов
+export function authHeader(): Record<string, string> {
+  return creds ? { Authorization: 'Basic ' + btoa(`${creds.login}:${creds.password}`) } : {}
+}
+
 export async function api<T>(
   path: string,
   opts: { method?: string; body?: unknown } = {},
