@@ -16,7 +16,7 @@
 - Create: `web/src/api/types.ts`
 - Create: `web/src/stores/dictionaries.ts`
 
-- [ ] **Step 1: Типы**
+- [x] **Step 1: Типы**
 
 `web/src/api/types.ts`:
 
@@ -58,7 +58,7 @@ export interface Entry {
 }
 ```
 
-- [ ] **Step 2: Стор**
+- [x] **Step 2: Стор**
 
 `web/src/stores/dictionaries.ts`:
 
@@ -92,7 +92,7 @@ export const useDictionaries = defineStore('dictionaries', {
 })
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```powershell
 git add web/src/api/types.ts web/src/stores/dictionaries.ts
@@ -108,7 +108,7 @@ git commit -m "feat(web): api types and dictionaries store"
 - Create: `web/src/lib/scales.ts`
 - Test: `web/test/quickForm.spec.ts`
 
-- [ ] **Step 1: Падающий тест**
+- [x] **Step 1: Падающий тест**
 
 `web/test/quickForm.spec.ts`:
 
@@ -156,11 +156,11 @@ describe('afterSave (ТЗ §3.2: стадия и инструмент сохра
 })
 ```
 
-- [ ] **Step 2: Убедиться, что падает**
+- [x] **Step 2: Убедиться, что падает**
 
 Run: `npx vitest run -r web` → FAIL
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `web/src/lib/quickForm.ts`:
 
@@ -221,7 +221,7 @@ export const TRUST_LABELS: Record<number, string> = {
 }
 ```
 
-- [ ] **Step 4: Тесты зелёные + Commit**
+- [x] **Step 4: Тесты зелёные + Commit**
 
 Run: `npx vitest run -r web` → PASS
 
@@ -238,7 +238,7 @@ git commit -m "feat(web): quick entry form logic and scales (TDD)"
 - Create: `web/src/lib/draft.ts`
 - Test: `web/test/draft.spec.ts`
 
-- [ ] **Step 1: Падающий тест**
+- [x] **Step 1: Падающий тест**
 
 `web/test/draft.spec.ts`:
 
@@ -276,11 +276,11 @@ describe('последний инструмент', () => {
 })
 ```
 
-- [ ] **Step 2: Убедиться, что падает**
+- [x] **Step 2: Убедиться, что падает**
 
 Run: `npx vitest run -r web` → FAIL
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `web/src/lib/draft.ts`:
 
@@ -313,7 +313,7 @@ export const saveLastTool = (id: string) => localStorage.setItem(LAST_TOOL_KEY, 
 export const loadLastTool = () => localStorage.getItem(LAST_TOOL_KEY)
 ```
 
-- [ ] **Step 4: Тесты зелёные + Commit**
+- [x] **Step 4: Тесты зелёные + Commit**
 
 Run: `npx vitest run -r web` → PASS
 
@@ -329,7 +329,7 @@ git commit -m "feat(web): form draft persistence (TDD)"
 **Files:**
 - Create: `web/src/components/RatingRow.vue`
 
-- [ ] **Step 1: Компонент**
+- [x] **Step 1: Компонент**
 
 Роли токенов (дизайн-док): польза — `accent-900/700/accent`, доверие — `accent-2-900/-700/-400`.
 
@@ -382,7 +382,7 @@ const ACTIVE = {
 </template>
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```powershell
 git add web/src/components/RatingRow.vue
@@ -397,7 +397,7 @@ git commit -m "feat(web): rating row component"
 - Modify: `web/src/views/QuickEntryView.vue` (заменить заглушку целиком)
 - Modify: `web/src/App.vue` (добавить Toast)
 
-- [ ] **Step 1: Toast в App.vue**
+- [x] **Step 1: Toast в App.vue**
 
 В `web/src/App.vue` в `<template>` (после `</main>`) добавить, а в script — импорт:
 
@@ -409,7 +409,7 @@ import Toast from 'primevue/toast'
 <Toast position="bottom-center" />
 ```
 
-- [ ] **Step 2: Вью**
+- [x] **Step 2: Вью**
 
 `web/src/views/QuickEntryView.vue`:
 
@@ -657,7 +657,7 @@ export function fmtDate(iso: string): string {
 }
 ```
 
-- [ ] **Step 3: Проверка в браузере (сценарии ТЗ §3.2)**
+- [x] **Step 3: Проверка в браузере (сценарии ТЗ §3.2)**
 
 Оба dev-сервера запущены, вход админом:
 1. Выбрать стадию → появились чипсы её подходов + «Другой подход».
@@ -668,11 +668,11 @@ export function fmtDate(iso: string): string {
 6. Смена стадии сбрасывает выбранный подход.
 7. Всё умещается на экране 1920×1080 без вертикального скролла.
 
-- [ ] **Step 4: Прогнать тесты**
+- [x] **Step 4: Прогнать тесты**
 
 Run: `npx vitest run -r web` → PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add web/src

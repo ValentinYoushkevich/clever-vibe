@@ -16,7 +16,7 @@
 - Create: `server/src/lib/editWindow.ts`
 - Test: `server/test/editWindow.spec.ts`
 
-- [ ] **Step 1: Падающий тест**
+- [x] **Step 1: Падающий тест**
 
 `server/test/editWindow.spec.ts`:
 
@@ -42,12 +42,12 @@ describe('canModify (ТЗ §3.3: «Изменить»/«Удалить» дос�
 })
 ```
 
-- [ ] **Step 2: Убедиться, что падает**
+- [x] **Step 2: Убедиться, что падает**
 
 Run: `npx vitest run -r server`
 Expected: FAIL — модуль не найден.
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `server/src/lib/editWindow.ts`:
 
@@ -59,7 +59,7 @@ export function canModify(createdAt: Date, now: Date = new Date()): boolean {
 }
 ```
 
-- [ ] **Step 4: Тесты зелёные + Commit**
+- [x] **Step 4: Тесты зелёные + Commit**
 
 Run: `npx vitest run -r server` → PASS
 
@@ -76,7 +76,7 @@ git commit -m "feat(server): 7-day edit window rule (TDD)"
 - Create: `server/src/lib/entryRules.ts`
 - Test: `server/test/entryRules.spec.ts`
 
-- [ ] **Step 1: Падающий тест**
+- [x] **Step 1: Падающий тест**
 
 `server/test/entryRules.spec.ts`:
 
@@ -105,11 +105,11 @@ describe('approachRuleError (ТЗ §2.4: approachId либо customApproachText)
 })
 ```
 
-- [ ] **Step 2: Убедиться, что падает**
+- [x] **Step 2: Убедиться, что падает**
 
 Run: `npx vitest run -r server` → FAIL
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `server/src/lib/entryRules.ts`:
 
@@ -129,7 +129,7 @@ export function approachRuleError(f: ApproachFields): string | null {
 }
 ```
 
-- [ ] **Step 4: Тесты зелёные + Commit**
+- [x] **Step 4: Тесты зелёные + Commit**
 
 Run: `npx vitest run -r server` → PASS
 
@@ -147,7 +147,7 @@ git commit -m "feat(server): entry approach-or-text rule (TDD)"
 - Modify: `server/src/app.ts`
 - Test: `server/test/dictionaries.spec.ts`
 
-- [ ] **Step 1: Падающий тест**
+- [x] **Step 1: Падающий тест**
 
 `server/test/dictionaries.spec.ts`:
 
@@ -188,11 +188,11 @@ describe('dictionaries', () => {
 })
 ```
 
-- [ ] **Step 2: Убедиться, что падает**
+- [x] **Step 2: Убедиться, что падает**
 
 Run: `npx vitest run -r server` → FAIL (404 вместо 401/200)
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `server/src/routes/dictionaries.ts`:
 
@@ -224,7 +224,7 @@ import { dictionaryRoutes } from './routes/dictionaries.js'
 app.register(dictionaryRoutes)
 ```
 
-- [ ] **Step 4: Тесты зелёные + Commit**
+- [x] **Step 4: Тесты зелёные + Commit**
 
 Run: `npx vitest run -r server` → PASS
 
@@ -242,7 +242,7 @@ git commit -m "feat(server): dictionary routes (stages, approaches, tools)"
 - Modify: `server/src/app.ts`
 - Test: `server/test/entries.spec.ts`
 
-- [ ] **Step 1: Падающий тест (in-memory фейк Prisma)**
+- [x] **Step 1: Падающий тест (in-memory фейк Prisma)**
 
 `server/test/entries.spec.ts`:
 
@@ -402,11 +402,11 @@ describe('PATCH и DELETE /api/entries/:id', () => {
 })
 ```
 
-- [ ] **Step 2: Убедиться, что падает**
+- [x] **Step 2: Убедиться, что падает**
 
 Run: `npx vitest run -r server` → FAIL (404 на все роуты)
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `server/src/routes/entries.ts`:
 
@@ -572,12 +572,12 @@ app.register(entryRoutes)
 
 Примечание: `buildApp` теперь обращается к `app.deps.prisma` при регистрации `entryRoutes` — фейк в тестах должен передаваться до `inject` (уже так).
 
-- [ ] **Step 4: Тесты зелёные**
+- [x] **Step 4: Тесты зелёные**
 
 Run: `npx vitest run -r server`
 Expected: PASS (все группы)
 
-- [ ] **Step 5: Ручная проверка на реальной БД**
+- [x] **Step 5: Ручная проверка на реальной БД**
 
 Запустить `npm run dev:server` и (PowerShell; `<login>:<password>` — админ из сида):
 
@@ -593,7 +593,7 @@ Invoke-RestMethod 'http://localhost:3000/api/entries?limit=3' -Headers @{Authori
 
 Expected: 201 с записью; список из одной записи со stage/approach/tool.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add server/src server/test/entries.spec.ts

@@ -16,7 +16,7 @@
 - Create: `server/src/lib/permissions.ts`
 - Test: `server/test/permissions.spec.ts`
 
-- [ ] **Step 1: Падающий тест (матрица ТЗ §2.1.1 дословно)**
+- [x] **Step 1: Падающий тест (матрица ТЗ §2.1.1 дословно)**
 
 `server/test/permissions.spec.ts`:
 
@@ -72,12 +72,12 @@ describe('permissions (матрица ТЗ §2.1.1)', () => {
 })
 ```
 
-- [ ] **Step 2: Убедиться, что падает**
+- [x] **Step 2: Убедиться, что падает**
 
 Run: `npx vitest run -r server`
 Expected: FAIL — модуль не найден.
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `server/src/lib/permissions.ts`:
 
@@ -103,12 +103,12 @@ export const canSeePassword = (
 ) => viewer.role === 'admin' || (viewer.role === 'lead' && target.createdById === viewer.id)
 ```
 
-- [ ] **Step 4: Тесты зелёные**
+- [x] **Step 4: Тесты зелёные**
 
 Run: `npx vitest run -r server`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add server/src/lib/permissions.ts server/test/permissions.spec.ts
@@ -125,13 +125,13 @@ git commit -m "feat(server): role permission matrix (TDD)"
 - Modify: `server/src/app.ts`
 - Test: `server/test/auth.spec.ts`
 
-- [ ] **Step 1: Зависимости**
+- [x] **Step 1: Зависимости**
 
 ```powershell
 npm i -w server fastify-plugin @sinclair/typebox @fastify/type-provider-typebox
 ```
 
-- [ ] **Step 2: Падающий тест**
+- [x] **Step 2: Падающий тест**
 
 `server/test/auth.spec.ts`:
 
@@ -215,12 +215,12 @@ describe('app.authenticate', () => {
 })
 ```
 
-- [ ] **Step 3: Убедиться, что падает**
+- [x] **Step 3: Убедиться, что падает**
 
 Run: `npx vitest run -r server`
 Expected: FAIL — `plugins/auth.js` не найден.
 
-- [ ] **Step 4: Реализация плагина**
+- [x] **Step 4: Реализация плагина**
 
 `server/src/plugins/auth.ts`:
 
@@ -320,12 +320,12 @@ app.register(authPlugin)
 app.register(loginRoutes)
 ```
 
-- [ ] **Step 5: Тесты зелёные**
+- [x] **Step 5: Тесты зелёные**
 
 Run: `npx vitest run -r server`
 Expected: PASS (все группы auth + прежние)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add server/src server/test/auth.spec.ts server/package.json package-lock.json
@@ -340,7 +340,7 @@ git commit -m "feat(server): basic-auth plugin and POST /api/login"
 - Create: `web/src/api/client.ts`
 - Create: `web/src/stores/auth.ts`
 
-- [ ] **Step 1: Клиент**
+- [x] **Step 1: Клиент**
 
 `web/src/api/client.ts`:
 
@@ -391,7 +391,7 @@ export async function api<T>(
 }
 ```
 
-- [ ] **Step 2: Стор**
+- [x] **Step 2: Стор**
 
 `web/src/stores/auth.ts`:
 
@@ -447,7 +447,7 @@ export const useAuth = defineStore('auth', {
 })
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```powershell
 git add web/src/api/client.ts web/src/stores/auth.ts
@@ -464,7 +464,7 @@ git commit -m "feat(web): api client with basic auth + auth store"
 - Create: `web/src/router.ts`
 - Create: `web/src/views/QuickEntryView.vue`, `web/src/views/MyEntriesView.vue`, `web/src/views/DashboardView.vue`, `web/src/views/AdminView.vue`, `web/src/views/LoginView.vue` (заглушки; наполняются в планах 05–08 и Task 5)
 
-- [ ] **Step 1: Падающий тест**
+- [x] **Step 1: Падающий тест**
 
 `web/test/nav.spec.ts`:
 
@@ -487,12 +487,12 @@ describe('nav', () => {
 })
 ```
 
-- [ ] **Step 2: Убедиться, что падает**
+- [x] **Step 2: Убедиться, что падает**
 
 Run: `npx vitest run -r web`
 Expected: FAIL — модуль не найден.
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `web/src/lib/nav.ts`:
 
@@ -530,12 +530,12 @@ export const canExportCsv = (r: Role) => r === 'lead' || r === 'admin' || r === 
 export const canAccessAdmin = (r: Role) => r === 'lead' || r === 'admin'
 ```
 
-- [ ] **Step 4: Тесты зелёные**
+- [x] **Step 4: Тесты зелёные**
 
 Run: `npx vitest run -r web`
 Expected: PASS
 
-- [ ] **Step 5: Роутер и заглушки**
+- [x] **Step 5: Роутер и заглушки**
 
 Каждая заглушка (`QuickEntryView.vue`, `MyEntriesView.vue`, `DashboardView.vue`, `AdminView.vue`) до своего плана выглядит так (подставить свой заголовок):
 
@@ -601,7 +601,7 @@ app.mount('#app')
 
 (`await` на верхнем уровне работает: Vite собирает ESM.)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add web/src web/test/nav.spec.ts
@@ -617,7 +617,7 @@ git commit -m "feat(web): router with role-aware guards and nav tabs (TDD)"
 - Create: `web/src/components/AppHeader.vue`
 - Modify: `web/src/App.vue`
 
-- [ ] **Step 1: LoginView**
+- [x] **Step 1: LoginView**
 
 Дизайн — `docs/design/README.md`, раздел «1. Вход»: карточка 360px по центру, точка-акцент, подпись, ошибки цветом `--bad`. Демо-доступы из прототипа не переносим (они прототипные).
 
@@ -708,7 +708,7 @@ async function submit() {
 </template>
 ```
 
-- [ ] **Step 2: AppHeader**
+- [x] **Step 2: AppHeader**
 
 Дизайн — `docs/design/README.md`, раздел «2. Шапка»: sticky 58px, полупрозрачный фон с blur, табы, справа тема/пользователь/выход.
 
@@ -792,7 +792,7 @@ function logout() {
 </template>
 ```
 
-- [ ] **Step 3: App.vue**
+- [x] **Step 3: App.vue**
 
 `web/src/App.vue` (заменить целиком — проба токенов из плана 02 больше не нужна):
 
@@ -836,7 +836,7 @@ describe('LoginView', () => {
 })
 ```
 
-- [ ] **Step 4: Проверка в браузере (полный цикл ТЗ §3.1)**
+- [x] **Step 4: Проверка в браузере (полный цикл ТЗ §3.1)**
 
 Запустить `npm run dev:server` и `npm run dev:web`:
 1. Открыть http://localhost:5173 → редирект на `/login`.
@@ -846,12 +846,12 @@ describe('LoginView', () => {
 5. В `prisma studio` поставить админу `active = false` → перезагрузка → форма входа; попытка входа → «Участник деактивирован». Вернуть `active = true`.
 6. «Выйти» → форма входа, `localStorage['aiTrackerAuth']` пуст.
 
-- [ ] **Step 5: Прогнать тесты**
+- [x] **Step 5: Прогнать тесты**
 
 Run: `npx vitest run -r web`
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add web/src web/test
