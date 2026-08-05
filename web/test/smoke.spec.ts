@@ -1,10 +1,17 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import App from '../src/App.vue'
+import { createPinia } from 'pinia'
+import LoginView from '../src/views/LoginView.vue'
 
-describe('App', () => {
-  it('монтируется', () => {
-    const w = mount(App)
-    expect(w.find('h1').text()).toBe('Clever Vibe')
+describe('LoginView', () => {
+  it('кнопка неактивна при пустых полях', () => {
+    const w = mount(LoginView, {
+      global: {
+        plugins: [createPinia()],
+        stubs: { RouterLink: true },
+        mocks: { $router: { push: () => {} } },
+      },
+    })
+    expect(w.find('button[type="submit"]').attributes('disabled')).toBeDefined()
   })
 })

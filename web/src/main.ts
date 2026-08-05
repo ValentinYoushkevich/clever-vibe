@@ -6,6 +6,8 @@ import './style.css'
 import App from './App.vue'
 import { CleverVibePreset } from './theme/primevuePreset.js'
 import { applyTheme, getSavedTheme } from './lib/theme.js'
+import { router } from './router.js'
+import { useAuth } from './stores/auth.js'
 
 applyTheme(getSavedTheme()) // синхронизирует data-dark и localStorage
 
@@ -18,4 +20,8 @@ app.use(PrimeVue, {
   },
 })
 app.use(ToastService)
+app.use(router)
+
+// Автовход до монтирования — без мигания формы входа (ТЗ §3.1)
+await useAuth().tryAutoLogin()
 app.mount('#app')
