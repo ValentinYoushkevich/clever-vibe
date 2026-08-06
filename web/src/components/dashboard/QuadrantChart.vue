@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import type { ApproachStat } from '../../api/dashboardTypes.js'
 import { pointColor, pointRadius, median, QUADRANT_MIN_TOTAL } from '../../lib/quadrant.js'
-import { f1 } from '../../lib/format.js'
+import { f1, plural } from '../../lib/format.js'
 
 const props = defineProps<{ approaches: ApproachStat[]; totalEntries: number }>()
 const emit = defineEmits<{ (e: 'select', a: ApproachStat): void }>()
@@ -30,9 +30,23 @@ const points = computed(() =>
     size: pointRadius(a.n) * 2,
     stroke: pointColor(a.avgTrust),
     fill: `color-mix(in srgb, ${pointColor(a.avgTrust)} 40%, transparent)`,
-    tip: `${a.title} · N ${a.n} · польза ${f1(a.avgUsefulness)} · доверие ${f1(a.avgTrust)}`,
+    tip: tipOf(a),
   })),
 )
+
+// Стадия отдельной строкой: на графике все стадии смешаны, и без неё две
+// соседние точки не отличить. Текст многострочный, но не HTML — названия
+// подходов пишут участники, и escape тултипа их обезвреживает.
+function tipOf(a: ApproachStat): string {
+  const rows = [
+    a.stageTitle,
+    a.title,
+    plural(a.n, 'запись', 'записи', 'записей'),
+    `польза ${f1(a.avgUsefulness)} · доверие ${f1(a.avgTrust)}`,
+  ]
+  if (a.lowData) rows.push('мало данных — вывод предварительный')
+  return rows.join('\n')
+}
 
 // Примеры размеров той же формулой, что и точки на графике
 const SIZE_LEGEND = [1, 10, 20].map((n) => ({
@@ -119,7 +133,8 @@ const QUADRANTS: {
           v-for="p in points"
           :key="p.a.approachId"
           type="button"
-          :title="p.tip"
+          v-tooltip.top="{ value: p.tip, class: 'quadrant-tip' }"
+          :aria-label="p.tip"
           style="position: absolute; transform: translate(-50%, -50%); border-radius: 50%; cursor: pointer"
           :style="{
             left: p.x + '%',
