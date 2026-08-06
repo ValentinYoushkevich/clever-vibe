@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
 import { api } from '../../api/client.js'
 import { useDictionaries } from '../../stores/dictionaries.js'
 import { plural } from '../../lib/format.js'
@@ -11,6 +12,7 @@ const MONTHS_RU = [
 ]
 const monthOf = (iso: string) => MONTHS_RU[new Date(iso).getMonth()]
 
+// Промоученные сюда не приходят — сервер их отфильтровывает, они уже в справочнике
 interface CustomGroup {
   text: string
   n: number
@@ -19,11 +21,11 @@ interface CustomGroup {
   lastAt: string
   stageId: string
   stageTitle: string
-  promoted: boolean
 }
 
 const dict = useDictionaries()
 const toast = useToast()
+const confirm = useConfirm()
 const groups = ref<CustomGroup[]>([])
 const emit = defineEmits<{ (e: 'promoted'): void }>()
 
@@ -49,6 +51,24 @@ async function promote(g: CustomGroup) {
   dict.loaded = false
   await Promise.all([load(), dict.load()])
   emit('promoted')
+}
+
+// Отклонение: предложение исчезает вместе с записями, где оно указано, —
+// без них текст всё равно продолжил бы висеть в списке
+function discard(g: CustomGroup) {
+  const n = plural(g.n, 'запись', 'записи', 'записей')
+  confirm.require({
+    header: 'Удалить предложение?',
+    message: `«${g.text}» исчезнет из списка, вместе с ним удалятся ${n}, где оно указано.`,
+    icon: 'pi pi-exclamation-triangle',
+    acceptProps: { label: 'Удалить', severity: 'danger' },
+    rejectProps: { label: 'Отмена', severity: 'secondary', outlined: true },
+    accept: async () => {
+      await api('/api/custom-approaches', { method: 'DELETE', body: { text: g.text } })
+      toast.add({ severity: 'success', summary: 'Предложение удалено', life: 2200 })
+      await load()
+    },
+  })
 }
 
 onMounted(load)
@@ -82,27 +102,52 @@ onMounted(load)
             {{ groupMeta(g) }}
           </div>
         </div>
-        <span v-if="g.promoted" style="font-size: 14px; color: var(--color-neutral-500)">
-          В справочнике
-        </span>
-        <button
-          v-else
-          type="button"
-          style="
-            padding: var(--space-2) var(--space-4);
-            border-radius: var(--radius-md);
-            border: 1px solid var(--color-accent-700);
-            background: var(--color-accent-900);
-            color: var(--color-accent);
-            font-size: 14px;
-            cursor: pointer;
-            white-space: nowrap;
-          "
-          @click="promote(g)"
-        >
-          Промоутить
-        </button>
+        <!-- items-stretch, а не одинаковые паддинги: у иконки и у текста разные
+             метрики строки, растяжение выравнивает высоту без подгонки на глаз -->
+        <div class="flex items-stretch gap-(--space-2)">
+          <button
+            type="button"
+            style="
+              padding: var(--space-2) var(--space-4);
+              border-radius: var(--radius-md);
+              border: 1px solid var(--color-accent-700);
+              background: var(--color-accent-900);
+              color: var(--color-accent);
+              font-size: 14px;
+              cursor: pointer;
+              white-space: nowrap;
+            "
+            @click="promote(g)"
+          >
+            Промоутить
+          </button>
+          <!-- Удаление необратимо, поэтому цветом ошибки и всегда правее промоута -->
+          <button
+            type="button"
+            class="discard-btn flex items-center"
+            aria-label="Удалить предложение"
+            v-tooltip.top="'Удалить предложение вместе с записями'"
+            style="
+              padding: 0 var(--space-3);
+              border-radius: var(--radius-md);
+              border: 1px solid var(--bad);
+              background: var(--color-bg);
+              color: var(--bad);
+              cursor: pointer;
+            "
+            @click="discard(g)"
+          >
+            <i class="pi pi-trash" style="font-size: 14px" />
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.discard-btn:hover {
+  background: var(--bad) !important;
+  color: var(--color-bg) !important;
+}
+</style>

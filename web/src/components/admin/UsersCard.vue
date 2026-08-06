@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
 import { api } from '../../api/client.js'
 import { useAuth } from '../../stores/auth.js'
 import { plural } from '../../lib/format.js'
@@ -27,6 +28,7 @@ interface CreatedUser {
 
 const auth = useAuth()
 const toast = useToast()
+const confirm = useConfirm()
 const users = ref<AdminUser[]>([])
 const showForm = ref(false)
 const newName = ref('')
@@ -76,13 +78,21 @@ async function toggleActive(u: AdminUser) {
   await load()
 }
 
-async function remove(u: AdminUser) {
+function remove(u: AdminUser) {
   const n = u.entriesCount
   const tail = n ? ` Вместе с ним удалятся ${plural(n, 'его запись', 'его записи', 'его записей')}.` : ''
-  if (!confirm(`Удалить участника «${u.name}» навсегда?${tail} Отменить будет нельзя.`)) return
-  await api(`/api/users/${u.id}`, { method: 'DELETE' })
-  toast.add({ severity: 'success', summary: 'Участник удалён', life: 2200 })
-  await load()
+  confirm.require({
+    header: 'Удалить участника?',
+    message: `«${u.name}» исчезнет навсегда.${tail} Отменить будет нельзя.`,
+    icon: 'pi pi-exclamation-triangle',
+    acceptProps: { label: 'Удалить', severity: 'danger' },
+    rejectProps: { label: 'Отмена', severity: 'secondary', outlined: true },
+    accept: async () => {
+      await api(`/api/users/${u.id}`, { method: 'DELETE' })
+      toast.add({ severity: 'success', summary: 'Участник удалён', life: 2200 })
+      await load()
+    },
+  })
 }
 
 async function regenerate(u: AdminUser) {

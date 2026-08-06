@@ -139,12 +139,20 @@ onMounted(async () => {
             :style="{ color: a.active ? 'var(--color-neutral-200)' : 'var(--color-neutral-600)' }"
             >{{ a.title }}</span
           >
-          <span
+          <!-- Промоученный подход: в списке «на разбор» его уже нет, поэтому
+               происхождение видно только отсюда -->
+          <i
             v-if="a.isCustom"
-            class="tnum"
-            style="font-size: 12px; color: var(--warn-dim); margin-left: 7px"
-            >isCustom</span
-          >
+            v-tooltip.top="'Кастомный подход — предложен участником в записи и добавлен в справочник'"
+            class="pi pi-user-edit"
+            style="
+              font-size: 12.5px;
+              color: var(--warn-dim);
+              margin-left: 7px;
+              vertical-align: middle;
+              cursor: help;
+            "
+          />
         </div>
         <span style="font-size: 13.5px; color: var(--color-neutral-500)">{{ a.stageTitle }}</span>
         <span class="tnum" style="font-size: 13px; color: var(--color-neutral-500); text-align: right">

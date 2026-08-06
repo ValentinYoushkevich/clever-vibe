@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router'
 import { useAuth } from '../stores/auth.js'
 import { defaultRoute } from '../lib/nav.js'
 import { ApiError } from '../api/client.js'
-import ThemeSelect from '../components/ThemeSelect.vue'
 
 const auth = useAuth()
 const router = useRouter()
@@ -33,7 +32,7 @@ async function submit() {
 
 <template>
   <div
-    class="min-h-full flex items-center justify-center"
+    class="min-h-dvh flex items-center justify-center"
     style="padding: var(--space-8)"
   >
     <div style="width: 360px">
@@ -87,16 +86,6 @@ async function submit() {
           Войти
         </button>
       </form>
-
-      <div
-        class="flex items-center justify-between gap-(--space-4)"
-        style="margin-top: var(--space-6)"
-      >
-        <span style="font-size: 13.5px; color: var(--color-neutral-500)">
-          Внутренний контур · доступ выдаёт тимлид
-        </span>
-        <ThemeSelect />
-      </div>
     </div>
   </div>
 </template>

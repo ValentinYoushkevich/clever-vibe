@@ -16,7 +16,13 @@ export interface Deps {
 
 export function buildApp(deps: Deps) {
   const app = Fastify({ logger: true })
-  app.register(cors, { origin: process.env.CORS_ORIGIN ?? true })
+  // methods задаём явно: по умолчанию плагин разрешает только GET/HEAD/POST,
+  // и preflight отклоняет PATCH и DELETE. В проде фронт отдаётся с того же
+  // origin и preflight не возникает, поэтому промах виден только в деве.
+  app.register(cors, {
+    origin: process.env.CORS_ORIGIN ?? true,
+    methods: ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE'],
+  })
   app.decorate('deps', deps)
   decorateAuth(app)
   app.register(loginRoutes)

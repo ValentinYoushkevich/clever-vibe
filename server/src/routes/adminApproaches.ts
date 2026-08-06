@@ -92,8 +92,37 @@ export async function adminApproachRoutes(app: FastifyInstance) {
         authorName: e.user.name,
       })),
       new Set(promoted.map((a) => a.promotedFromText!)),
-    )
+      // Это список «на разбор»: промоученные уже разобраны и живут в справочнике
+      // с пометкой isCustom — держать их здесь значит показывать сделанную работу
+    ).filter((g) => !g.promoted)
   })
+
+  // Отклонение предложения: сам подход в справочник не попадает, а записи,
+  // где он был указан, уходят в удалённые — иначе текст остался бы висеть
+  // в списке. Физического удаления записей нет (ТЗ §2.4), только deletedAt.
+  app.delete(
+    '/api/custom-approaches',
+    { ...guard, schema: { body: Type.Object({ text: Type.String({ minLength: 1 }) }) } },
+    async (req, reply) => {
+      if (!canManageApproaches(req.user.role)) return forbidden(reply)
+      const norm = normalizeCustomText((req.body as { text: string }).text)
+      // approachId: null — только неразобранные предложения. У промоученных
+      // записей customApproachText остаётся для истории и CSV, и они уже
+      // относятся к подходу из справочника — их этот маршрут трогать не должен.
+      const candidates = await prisma.entry.findMany({
+        where: { customApproachText: { not: null }, approachId: null, deletedAt: null },
+      })
+      const ids = candidates
+        .filter((e) => normalizeCustomText(e.customApproachText!) === norm)
+        .map((e) => e.id)
+      if (!ids.length) return reply.code(404).send({ error: 'not_found' })
+      await prisma.entry.updateMany({
+        where: { id: { in: ids } },
+        data: { deletedAt: new Date() },
+      })
+      return { ok: true, deleted: ids.length }
+    },
+  )
 
   app.post(
     '/api/approaches/promote',

@@ -2,6 +2,8 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
+import ConfirmationService from 'primevue/confirmationservice'
+import Tooltip from 'primevue/tooltip'
 import './style.css'
 import App from './App.vue'
 import { CleverVibePreset } from './theme/primevuePreset.js'
@@ -22,6 +24,8 @@ app.use(PrimeVue, {
   },
 })
 app.use(ToastService)
+app.use(ConfirmationService)
+app.directive('tooltip', Tooltip)
 app.use(router)
 
 // Автовход: связка из localStorage поднимается синхронно, поэтому форма входа

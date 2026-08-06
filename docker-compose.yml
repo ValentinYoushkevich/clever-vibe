@@ -1,0 +1,46 @@
+# Локальное развёртывание на рабочей машине: коллеги ходят на http://<IP>:8080
+# Наружу открыт только nginx — API доступен через него по /api, поэтому фронт
+# собирается без VITE_API_URL и работает с любого адреса без пересборки.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: clever
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-clever}
+      POSTGRES_DB: clevervibe
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U clever -d clevervibe']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://clever:${POSTGRES_PASSWORD:-clever}@db:5432/clevervibe
+      DIRECT_URL: postgresql://clever:${POSTGRES_PASSWORD:-clever}@db:5432/clevervibe
+      ADMIN_NAME: ${ADMIN_NAME:-Администратор}
+      ADMIN_LOGIN: ${ADMIN_LOGIN:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    ports:
+      - '8080:80'
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  pgdata:

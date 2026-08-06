@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
 import { api } from '../api/client.js'
 import type { Entry } from '../api/types.js'
 import { useDictionaries } from '../stores/dictionaries.js'
@@ -14,6 +15,7 @@ import EntryEditDialog from '../components/EntryEditDialog.vue'
 const dict = useDictionaries()
 const auth = useAuth()
 const toast = useToast()
+const confirm = useConfirm()
 const all = ref<Entry[]>([])
 const stageFilter = ref<string>('') // '' = все стадии
 const monthFilter = ref<string>('all') // 'all' = весь пилот
@@ -50,11 +52,19 @@ async function load() {
   all.value = await api<Entry[]>('/api/entries')
 }
 
-async function remove(e: Entry) {
-  if (!confirm('Удалить запись?')) return
-  await api(`/api/entries/${e.id}`, { method: 'DELETE' })
-  toast.add({ severity: 'success', summary: 'Запись удалена', life: 2200 })
-  await load()
+function remove(e: Entry) {
+  confirm.require({
+    header: 'Удалить запись?',
+    message: `${fmtDate(e.createdAt)} · ${e.stage.title} — запись перестанет учитываться в статистике.`,
+    icon: 'pi pi-exclamation-triangle',
+    acceptProps: { label: 'Удалить', severity: 'danger' },
+    rejectProps: { label: 'Отмена', severity: 'secondary', outlined: true },
+    accept: async () => {
+      await api(`/api/entries/${e.id}`, { method: 'DELETE' })
+      toast.add({ severity: 'success', summary: 'Запись удалена', life: 2200 })
+      await load()
+    },
+  })
 }
 
 async function onSaved() {
