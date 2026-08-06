@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { ApproachStat } from '../../api/dashboardTypes.js'
-import { pointColor, pointRadius, median, QUADRANT_MIN_TOTAL } from '../../lib/quadrant.js'
+import { pointColor, pointRadius, median, separate, QUADRANT_MIN_TOTAL } from '../../lib/quadrant.js'
 import { f1, plural } from '../../lib/format.js'
 
 const props = defineProps<{ approaches: ApproachStat[]; totalEntries: number }>()
@@ -22,17 +22,40 @@ const medianLabel = computed(() =>
     : `границы появятся после ${QUADRANT_MIN_TOTAL} записей`,
 )
 
-const points = computed(() =>
-  props.approaches.map((a) => ({
+// Расталкивание считается в пикселях, поэтому область надо измерить: высота
+// фиксированная, а ширина резиновая и меняется вместе с шириной окна
+const plot = ref<HTMLElement | null>(null)
+const box = ref({ w: 0, h: 0 })
+let ro: ResizeObserver | null = null
+onMounted(() => {
+  if (!plot.value) return
+  ro = new ResizeObserver(([e]) => {
+    box.value = { w: e.contentRect.width, h: e.contentRect.height }
+  })
+  ro.observe(plot.value)
+})
+onBeforeUnmount(() => ro?.disconnect())
+
+const points = computed(() => {
+  const { w, h } = box.value
+  const raw = props.approaches.map((a) => ({
     a,
-    x: xPct(a.n),
-    y: yPct(a.avgUsefulness),
-    size: pointRadius(a.n) * 2,
-    stroke: pointColor(a.avgTrust),
-    fill: `color-mix(in srgb, ${pointColor(a.avgTrust)} 40%, transparent)`,
-    tip: tipOf(a),
-  })),
-)
+    x: (xPct(a.n) / 100) * w,
+    y: (yPct(a.avgUsefulness) / 100) * h,
+    r: pointRadius(a.n),
+  }))
+  // До первого замера ширина нулевая — точки схлопнулись бы в угол
+  const placed = w ? separate(raw, w, h) : raw
+  return placed.map((p) => ({
+    a: p.a,
+    x: p.x,
+    y: p.y,
+    size: p.r * 2,
+    stroke: pointColor(p.a.avgTrust),
+    fill: `color-mix(in srgb, ${pointColor(p.a.avgTrust)} 40%, transparent)`,
+    tip: tipOf(p.a),
+  }))
+})
 
 // Стадия отдельной строкой: на графике все стадии смешаны, и без неё две
 // соседние точки не отличить. Текст многострочный, но не HTML — названия
@@ -94,6 +117,7 @@ const QUADRANTS: {
         средняя польза →
       </div>
       <div
+        ref="plot"
         style="
           position: relative;
           height: 340px;
@@ -137,8 +161,8 @@ const QUADRANTS: {
           :aria-label="p.tip"
           style="position: absolute; transform: translate(-50%, -50%); border-radius: 50%; cursor: pointer"
           :style="{
-            left: p.x + '%',
-            top: p.y + '%',
+            left: p.x + 'px',
+            top: p.y + 'px',
             width: p.size + 'px',
             height: p.size + 'px',
             background: p.fill,
