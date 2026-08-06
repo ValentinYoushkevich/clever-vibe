@@ -122,9 +122,9 @@
   .meta { font-size: 14px; color: var(--color-neutral-500); }
 }
 
-/* Тултип точек квадрантов. Стиль глобальный и вне слоёв: директива PrimeVue
-   рендерит его в body, куда scoped-стили компонента не достают. */
-.quadrant-tip .p-tooltip-text {
+/* Многострочный тултип виджетов дашборда. Стиль глобальный и вне слоёв:
+   директива PrimeVue рендерит его в body, куда scoped-стили не достают. */
+.chart-tip .p-tooltip-text {
   white-space: pre-line; /* переносы строк из \n — значение экранируется, HTML в нём нет */
   text-align: left;
   font-size: 13px;

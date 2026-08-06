@@ -88,9 +88,15 @@ onMounted(async () => {
       </div>
     </div>
 
+    <!-- Обе карточки в одном ряду высотой по контенту, но не выше 560px: списки
+         тут длинные и разной длины, и без общего потолка одна прокручивалась бы
+         внутри себя, а вторая растягивала страницу на всю высоту -->
     <div
       class="grid gap-(--space-6)"
-      style="grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr)"
+      style="
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr);
+        grid-auto-rows: minmax(0, 560px);
+      "
     >
       <SpreadCard :spread="data.spread" />
       <ApproachesTable

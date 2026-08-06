@@ -25,7 +25,15 @@ export interface DashboardData {
   approaches: ApproachStat[]
   stages: { code: string; title: string; n: number }[]
   trend: Record<TrendBucket, TrendPoint[]>
-  spread: { approachId: string; title: string; n: number; min: number; max: number; delta: number }[]
+  spread: {
+    approachId: string
+    title: string
+    n: number
+    coverage: number
+    min: number
+    max: number
+    delta: number
+  }[]
 }
 
 export interface AnonEntry {

@@ -130,8 +130,21 @@ describe('spreadByApproach (виджет 4: min–max средних участ�
       e({ userId: 'u2', usefulness: 2 }), // средняя u2 = 2
     ])
     expect(rows).toEqual([
-      { approachId: 'a1', title: 'Автокомплит в IDE', n: 3, min: 2, max: 4.5, delta: 2.5 },
+      {
+        approachId: 'a1', title: 'Автокомплит в IDE',
+        n: 3, coverage: 2, min: 2, max: 4.5, delta: 2.5,
+      },
     ])
+  })
+
+  // Порог виджета — по записям, поэтому «согласие» может оказаться
+  // отсутствием второго мнения: это должно быть видно в coverage
+  it('у подхода одного участника разброс нулевой при coverage 1', () => {
+    const rows = spreadByApproach([
+      e({ userId: 'u1', usefulness: 5 }),
+      e({ userId: 'u1', usefulness: 2 }),
+    ])
+    expect(rows[0]).toMatchObject({ n: 2, coverage: 1, delta: 0 })
   })
 })
 

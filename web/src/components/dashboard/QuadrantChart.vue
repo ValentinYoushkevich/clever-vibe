@@ -22,6 +22,19 @@ const medianLabel = computed(() =>
     : `границы появятся после ${QUADRANT_MIN_TOTAL} записей`,
 )
 
+// Что означает линия — не очевидно из подписи в шапке, а от неё зависит,
+// в какой квадрант попал подход и какой из четырёх советов к нему относится
+const tipMedU = computed(
+  () =>
+    `Медиана средней пользы: ${f1(medU.value)}\n` +
+    'Выше линии — подходы, которые оценивают выше половины остальных',
+)
+const tipMedN = computed(
+  () =>
+    `Медиана числа применений: ${medN.value}\n` +
+    'Правее линии — подходы, которые команда применяет чаще половины остальных',
+)
+
 // Расталкивание считается в пикселях, поэтому область надо измерить: высота
 // фиксированная, а ширина резиновая и меняется вместе с шириной окна
 const plot = ref<HTMLElement | null>(null)
@@ -127,15 +140,39 @@ const QUADRANTS: {
           overflow: hidden;
         "
       >
+        <!-- Линия рисуется внутри прозрачной полосы: в 2px курсором не попасть,
+             а расширять саму линию ради наведения — портить график -->
         <template v-if="showBounds">
           <div
-            style="position: absolute; left: 0; right: 0; height: 1px; background: var(--color-neutral-700)"
+            v-tooltip.top="{ value: tipMedU, class: 'chart-tip' }"
+            class="flex items-center"
+            style="
+              position: absolute;
+              left: 0;
+              right: 0;
+              height: 12px;
+              transform: translateY(-50%);
+              cursor: help;
+            "
             :style="{ top: yPct(medU) + '%' }"
-          />
+          >
+            <div style="width: 100%; height: 2px; background: var(--color-neutral-700)" />
+          </div>
           <div
-            style="position: absolute; top: 0; bottom: 0; width: 1px; background: var(--color-neutral-700)"
+            v-tooltip.top="{ value: tipMedN, class: 'chart-tip' }"
+            class="flex justify-center"
+            style="
+              position: absolute;
+              top: 0;
+              bottom: 0;
+              width: 12px;
+              transform: translateX(-50%);
+              cursor: help;
+            "
             :style="{ left: xPct(medN) + '%' }"
-          />
+          >
+            <div style="height: 100%; width: 2px; background: var(--color-neutral-700)" />
+          </div>
         </template>
         <div
           v-for="q in QUADRANTS"
@@ -157,7 +194,7 @@ const QUADRANTS: {
           v-for="p in points"
           :key="p.a.approachId"
           type="button"
-          v-tooltip.top="{ value: p.tip, class: 'quadrant-tip' }"
+          v-tooltip.top="{ value: p.tip, class: 'chart-tip' }"
           :aria-label="p.tip"
           style="position: absolute; transform: translate(-50%, -50%); border-radius: 50%; cursor: pointer"
           :style="{

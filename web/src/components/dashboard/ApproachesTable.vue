@@ -42,9 +42,11 @@ const sorted = computed(() =>
 </script>
 
 <template>
-  <div class="card" style="padding: var(--space-8) 0 var(--space-3)">
+  <div class="card flex flex-col" style="padding: var(--space-8) 0 var(--space-3); min-height: 0">
     <h2 style="margin: 0 20px 14px; font-size: 16.5px; font-weight: 600">Таблица подходов</h2>
-    <div style="max-height: 360px; overflow: auto">
+    <!-- Высоту задаёт ряд сетки, а не фиксированный max-height: иначе карточка
+         растягивалась под соседнюю, а таблица внутри оставалась короткой -->
+    <div style="flex: 1; min-height: 0; overflow: auto">
       <table style="width: 100%; border-collapse: collapse">
         <thead>
           <tr>

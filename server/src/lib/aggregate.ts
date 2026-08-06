@@ -126,6 +126,10 @@ export interface SpreadRow {
   approachId: string
   title: string
   n: number
+  // Порог виджета считает записи, а не людей: шесть записей мог сделать один
+  // человек, и тогда разброс нулевой не от согласия, а от отсутствия второго
+  // мнения. Число участников показывается рядом, чтобы это было видно.
+  coverage: number
   min: number
   max: number
   delta: number
@@ -144,6 +148,7 @@ export function spreadByApproach(entries: AggEntry[]): SpreadRow[] {
       approachId: list[0].approach!.id,
       title: list[0].approach!.title,
       n: list.length,
+      coverage: perUser.length,
       min,
       max,
       delta: round1(max - min),
