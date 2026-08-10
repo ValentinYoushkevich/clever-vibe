@@ -80,10 +80,13 @@ async function toggleActive(u: AdminUser) {
 
 function remove(u: AdminUser) {
   const n = u.entriesCount
-  const tail = n ? ` Вместе с ним удалятся ${plural(n, 'его запись', 'его записи', 'его записей')}.` : ''
+  // plural подставляет само число, поэтому глагол согласуем внутри формы
+  const tail = n
+    ? ` Его ${plural(n, 'запись останется', 'записи останутся', 'записей останется')} в статистике.`
+    : ''
   confirm.require({
     header: 'Удалить участника?',
-    message: `«${u.name}» исчезнет навсегда.${tail} Отменить будет нельзя.`,
+    message: `«${u.name}» исчезнет из списка и не сможет войти.${tail} Отменить будет нельзя.`,
     icon: 'pi pi-exclamation-triangle',
     acceptProps: { label: 'Удалить', severity: 'danger' },
     rejectProps: { label: 'Отмена', severity: 'secondary', outlined: true },

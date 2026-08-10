@@ -5,6 +5,8 @@ export const canViewMine = canCreateEntry
 export const canViewDashboard = (_r: Role) => true
 export const canExportCsv = (r: Role) => r === 'lead' || r === 'admin' || r === 'observer'
 export const canManageApproaches = (r: Role) => r === 'lead' || r === 'admin'
+// Справочник инструментов ведут те же роли, что и справочник подходов
+export const canManageTools = canManageApproaches
 export const canAccessAdmin = canManageApproaches
 
 export const canCreateUser = (creator: Role, target: Role) =>
@@ -13,7 +15,7 @@ export const canCreateUser = (creator: Role, target: Role) =>
 export const canDeactivateUser = (actor: Role, target: Role) =>
   actor === 'admin' || (actor === 'lead' && target === 'dev')
 
-// Перманентное удаление участника — только админ; лиду доступна лишь деактивация
+// Удаление участника — только админ; лиду доступна лишь деактивация
 export const canDeleteUser = (actor: Role) => actor === 'admin'
 
 export const canSeePassword = (

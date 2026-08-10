@@ -22,7 +22,9 @@ export async function dashboardRoutes(app: FastifyInstance) {
         include: { stage: true, approach: true },
       }),
       prisma.stage.findMany({ where: { active: true } }),
-      prisma.user.count({ where: { active: true, role: { in: ['dev', 'lead', 'admin'] } } }),
+      prisma.user.count({
+        where: { active: true, deletedAt: null, role: { in: ['dev', 'lead', 'admin'] } },
+      }),
     ])
     const agg: AggEntry[] = entries.map((e) => ({
       userId: e.userId,

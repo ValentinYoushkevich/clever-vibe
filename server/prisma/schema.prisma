@@ -28,6 +28,9 @@ model User {
   created     User[]   @relation("CreatedUsers")
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
+  // Удаление участника мягкое: его записи — часть данных пилота и остаются
+  // в агрегатах, а Entry.userId обязателен, поэтому строку сносить нельзя.
+  deletedAt   DateTime?
   entries     Entry[]
 }
 

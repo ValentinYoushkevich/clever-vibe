@@ -7,6 +7,7 @@ import { downloadFile } from '../lib/download.js'
 import UsersCard from '../components/admin/UsersCard.vue'
 import ApproachesCard from '../components/admin/ApproachesCard.vue'
 import CustomApproachesCard from '../components/admin/CustomApproachesCard.vue'
+import ToolsCard from '../components/admin/ToolsCard.vue'
 
 const auth = useAuth()
 const toast = useToast()
@@ -78,7 +79,10 @@ async function exportCsv() {
         <CustomApproachesCard @promoted="approachesKey++" />
         <ApproachesCard :key="approachesKey" />
       </div>
-      <UsersCard />
+      <div class="flex flex-col gap-(--space-6)">
+        <UsersCard />
+        <ToolsCard />
+      </div>
     </div>
   </div>
 </template>

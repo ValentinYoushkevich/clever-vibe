@@ -7,6 +7,7 @@ import { dictionaryRoutes } from './routes/dictionaries.js'
 import { entryRoutes } from './routes/entries.js'
 import { userRoutes } from './routes/users.js'
 import { adminApproachRoutes } from './routes/adminApproaches.js'
+import { adminToolRoutes } from './routes/adminTools.js'
 import { exportRoutes } from './routes/exportCsv.js'
 import { dashboardRoutes } from './routes/dashboard.js'
 
@@ -30,6 +31,7 @@ export function buildApp(deps: Deps) {
   app.register(entryRoutes)
   app.register(userRoutes)
   app.register(adminApproachRoutes)
+  app.register(adminToolRoutes)
   app.register(exportRoutes)
   app.register(dashboardRoutes)
   app.get('/api/health', async () => ({ ok: true }))

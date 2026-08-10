@@ -9,7 +9,12 @@ const fakePrisma = {
   user: {
     findUnique: async ({ where }: never) =>
       users.find((u) => u.login === (where as U).login || u.id === (where as U).id) ?? null,
-    findMany: async () => users,
+    // where учитываем только по deletedAt: список участников его передаёт,
+    // а генератор логинов — намеренно нет, занятые логины считаются по всем
+    findMany: async ({ where }: never = {} as never) =>
+      (where as { deletedAt?: null } | undefined)?.deletedAt === null
+        ? users.filter((u) => !u.deletedAt)
+        : users,
     create: async ({ data }: never) => {
       const row = { id: `u${users.length + 1}`, active: true, createdAt: new Date(), ...(data as U) }
       users.push(row)
@@ -129,19 +134,38 @@ describe('PATCH /api/users/:id (деактивация §2.1.1)', () => {
   })
 })
 
-describe('DELETE /api/users/:id (перманентное удаление — только админ)', () => {
-  it('админ удаляет участника вместе с его записями', async () => {
+describe('DELETE /api/users/:id (удаление — только админ)', () => {
+  it('записи удалённого участника остаются', async () => {
     const app = buildApp({ prisma: fakePrisma })
     const res = await app.inject({ method: 'DELETE', url: '/api/users/D1', headers: auth('admin') })
     expect(res.statusCode).toBe(204)
-    expect(users.find((u) => u.id === 'D1')).toBeUndefined()
-    expect(entries.map((e) => e.id)).toEqual(['e3'])
+    // главное свойство: удаление автора не трогает собранные им оценки
+    expect(entries.map((e) => e.id)).toEqual(['e1', 'e2', 'e3'])
+    expect(users.find((u) => u.id === 'D1')!.deletedAt).toBeInstanceOf(Date)
   })
 
-  it('созданные удалённым участники остаются, ссылка на автора обнуляется', async () => {
+  it('удалённый исчезает из админки и не может войти', async () => {
+    const app = buildApp({ prisma: fakePrisma })
+    await app.inject({ method: 'DELETE', url: '/api/users/D1', headers: auth('admin') })
+    const list = (await app.inject({ url: '/api/users', headers: auth('admin') })).json()
+    expect(list.map((u: U) => u.id)).not.toContain('D1')
+    const login = await app.inject({
+      method: 'POST', url: '/api/login', payload: { login: 'dev', password: 'p' },
+    })
+    expect(login.statusCode).toBe(401)
+  })
+
+  it('созданные им участники и ссылка на автора сохраняются', async () => {
     const app = buildApp({ prisma: fakePrisma })
     await app.inject({ method: 'DELETE', url: '/api/users/L1', headers: auth('admin') })
-    expect(users.find((u) => u.id === 'D1')!.createdById).toBeNull()
+    expect(users.find((u) => u.id === 'D1')!.createdById).toBe('L1')
+  })
+
+  it('повторное удаление — 404', async () => {
+    const app = buildApp({ prisma: fakePrisma })
+    await app.inject({ method: 'DELETE', url: '/api/users/D1', headers: auth('admin') })
+    const again = await app.inject({ method: 'DELETE', url: '/api/users/D1', headers: auth('admin') })
+    expect(again.statusCode).toBe(404)
   })
 
   it('лид и dev удалять не могут', async () => {
@@ -150,14 +174,14 @@ describe('DELETE /api/users/:id (перманентное удаление — �
       const res = await app.inject({ method: 'DELETE', url: '/api/users/D2', headers: auth(who) })
       expect(res.statusCode).toBe(403)
     }
-    expect(users.find((u) => u.id === 'D2')).toBeDefined()
+    expect(users.find((u) => u.id === 'D2')!.deletedAt).toBeUndefined()
   })
 
   it('себя удалить нельзя', async () => {
     const app = buildApp({ prisma: fakePrisma })
     const res = await app.inject({ method: 'DELETE', url: '/api/users/A1', headers: auth('admin') })
     expect(res.statusCode).toBe(400)
-    expect(users.find((u) => u.id === 'A1')).toBeDefined()
+    expect(users.find((u) => u.id === 'A1')!.deletedAt).toBeUndefined()
   })
 
   it('несуществующий участник — 404', async () => {

@@ -12,8 +12,11 @@ export async function userRoutes(app: FastifyInstance) {
   app.get('/api/users', guard, async (req, reply) => {
     if (!canAccessAdmin(req.user.role)) return reply.code(403).send({ error: 'forbidden' })
     const users = await prisma.user.findMany({
+      where: { deletedAt: null },
       orderBy: { createdAt: 'asc' },
-      include: { _count: { select: { entries: true } } },
+      // Удалённые записи в счётчике не участвуют: он подписан «N записей»
+      // и попадает в предупреждение при удалении участника
+      include: { _count: { select: { entries: { where: { deletedAt: null } } } } },
     })
     // Пароль постоянно виден в списке — в границах видимости (ТЗ §3.5)
     return users.map((u) => ({
@@ -67,7 +70,7 @@ export async function userRoutes(app: FastifyInstance) {
       const target = await prisma.user.findUnique({
         where: { id: (req.params as { id: string }).id },
       })
-      if (!target) return reply.code(404).send({ error: 'not_found' })
+      if (!target || target.deletedAt) return reply.code(404).send({ error: 'not_found' })
       if (!canDeactivateUser(req.user.role, target.role))
         return reply.code(403).send({ error: 'forbidden' })
       await prisma.user.update({
@@ -78,20 +81,20 @@ export async function userRoutes(app: FastifyInstance) {
     },
   )
 
-  // Перманентное удаление: участник исчезает вместе со своими записями.
-  // Это единственное место в системе с физическим удалением — записи сами
-  // по себе только помечаются deletedAt (ТЗ §4).
+  // Удаление участника: он исчезает из админки и не может войти, но его записи
+  // остаются. Оценки — данные пилота, а не собственность автора: снеся их вместе
+  // с человеком, мы бы задним числом переписали уже посчитанные средние и охват.
+  // Физического удаления в системе нет вообще (ТЗ §4), в том числе и здесь.
   app.delete('/api/users/:id', guard, async (req, reply) => {
     if (!canDeleteUser(req.user.role)) return reply.code(403).send({ error: 'forbidden' })
     const id = (req.params as { id: string }).id
     if (id === req.user.id) return reply.code(400).send({ error: 'self_delete' })
     const target = await prisma.user.findUnique({ where: { id } })
-    if (!target) return reply.code(404).send({ error: 'not_found' })
-    await prisma.$transaction(async (tx) => {
-      await tx.entry.deleteMany({ where: { userId: id } })
-      // Созданные им участники остаются — теряется только ссылка на автора
-      await tx.user.updateMany({ where: { createdById: id }, data: { createdById: null } })
-      await tx.user.delete({ where: { id } })
+    if (!target || target.deletedAt) return reply.code(404).send({ error: 'not_found' })
+    // active гасим тоже: на него смотрят вход и знаменатель охвата на дашборде
+    await prisma.user.update({
+      where: { id: target.id },
+      data: { deletedAt: new Date(), active: false },
     })
     return reply.code(204).send()
   })
@@ -100,7 +103,7 @@ export async function userRoutes(app: FastifyInstance) {
     const target = await prisma.user.findUnique({
       where: { id: (req.params as { id: string }).id },
     })
-    if (!target) return reply.code(404).send({ error: 'not_found' })
+    if (!target || target.deletedAt) return reply.code(404).send({ error: 'not_found' })
     if (!canAccessAdmin(req.user.role) || !canSeePassword(req.user, target))
       return reply.code(403).send({ error: 'forbidden' })
     const password = makePassword()

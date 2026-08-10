@@ -29,7 +29,8 @@ export function decorateAuth(app: FastifyInstance) {
   app.decorate('verifyCredentials', async (login: string, password: string) => {
     const user = await app.deps.prisma.user.findUnique({ where: { login } })
     if (!user || user.password !== password) return { error: 'invalid_credentials' as const }
-    if (!user.active) return { error: 'inactive' as const }
+    // Удалённый участник остаётся в таблице ради своих записей, но входить не должен
+    if (!user.active || user.deletedAt) return { error: 'inactive' as const }
     const { password: _pw, ...safe } = user
     return { user: safe as AuthUser }
   })
