@@ -87,8 +87,8 @@ export const APPROACHES: SeedApproach[] = [
 // ПЛЕЙСХОЛДЕР: заменить утверждённым в компании списком инструментов
 // до развёртывания (ТЗ §2.5). Коды стабильны, менять только title/состав.
 export const TOOLS = [
-  { code: 'copilot', title: 'GitHub Copilot' },
-  { code: 'cursor', title: 'Cursor' },
   { code: 'claude-code', title: 'Claude Code' },
+  { code: 'cursor', title: 'Cursor' },
   { code: 'web-chat', title: 'Чат (веб-версия)' },
+  { code: 'codex', title: 'Codex' },
 ]

@@ -3,14 +3,22 @@ import {
   approachStats, stageCoverage, trendSeries, spreadByApproach, type AggEntry,
 } from '../lib/aggregate.js'
 
+// Фильтр «весь дашборд по одному инструменту»: пустой code = все инструменты.
+// Возвращаем кусок where, чтобы условие удалённых не дублировалось по роутам.
+function toolFilter(query: unknown) {
+  const code = (query as { tool?: string }).tool?.trim()
+  return code ? { tool: { code } } : {}
+}
+
 export async function dashboardRoutes(app: FastifyInstance) {
   const { prisma } = app.deps
   const guard = { preHandler: app.authenticate } // дашборд доступен всем ролям
 
-  app.get('/api/dashboard', guard, async () => {
+  app.get('/api/dashboard', guard, async (req) => {
     const [entries, stages, teamSize] = await Promise.all([
       prisma.entry.findMany({
-        where: { deletedAt: null }, // удалённые не входят в агрегаты (ТЗ §4)
+        // удалённые не входят в агрегаты (ТЗ §4)
+        where: { deletedAt: null, ...toolFilter(req.query) },
         include: { stage: true, approach: true },
       }),
       prisma.stage.findMany({ where: { active: true } }),
@@ -43,7 +51,9 @@ export async function dashboardRoutes(app: FastifyInstance) {
   app.get('/api/dashboard/approaches/:id/entries', guard, async (req) => {
     const id = (req.params as { id: string }).id
     const entries = await app.deps.prisma.entry.findMany({
-      where: { deletedAt: null, approachId: id },
+      // тот же фильтр, что и на дашборде: иначе в шторке всплывут записи,
+      // которых нет в цифрах карточки, по которой на неё кликнули
+      where: { deletedAt: null, approachId: id, ...toolFilter(req.query) },
       include: { tool: true },
       orderBy: { createdAt: 'desc' },
     })

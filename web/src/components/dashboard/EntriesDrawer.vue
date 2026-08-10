@@ -4,16 +4,25 @@ import { api } from '../../api/client.js'
 import type { AnonEntry, ApproachStat } from '../../api/dashboardTypes.js'
 import { fmtDate, f1 } from '../../lib/format.js'
 
-const props = defineProps<{ approach: ApproachStat | null; teamSize: number }>()
+const props = defineProps<{
+  approach: ApproachStat | null
+  teamSize: number
+  toolCode: string // '' = все инструменты, фильтр дашборда
+}>()
 const emit = defineEmits<{ (e: 'close'): void }>()
 const entries = ref<AnonEntry[]>([])
 
 watch(
   () => props.approach,
   async (a) => {
-    entries.value = a
-      ? await api<AnonEntry[]>(`/api/dashboard/approaches/${a.approachId}/entries`)
-      : []
+    if (!a) {
+      entries.value = []
+      return
+    }
+    const qs = props.toolCode ? `?tool=${encodeURIComponent(props.toolCode)}` : ''
+    entries.value = await api<AnonEntry[]>(
+      `/api/dashboard/approaches/${a.approachId}/entries${qs}`,
+    )
   },
 )
 

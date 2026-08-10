@@ -33,10 +33,17 @@ async function main() {
   for (const t of TOOLS) {
     await prisma.tool.upsert({
       where: { code: t.code },
-      update: { title: t.title },
+      update: { title: t.title, active: true },
       create: t,
     })
   }
+
+  // Инструмент, выбывший из списка, удалить нельзя — на него ссылаются записи.
+  // Гасим active: из выбора и фильтров он исчезает, история остаётся целой.
+  await prisma.tool.updateMany({
+    where: { code: { notIn: TOOLS.map((t) => t.code) } },
+    data: { active: false },
+  })
 
   // Первый админ — из переменных окружения (ТЗ §3.5, открытый вопрос закрыт сидом)
   const { ADMIN_NAME, ADMIN_LOGIN, ADMIN_PASSWORD } = process.env

@@ -6,9 +6,12 @@
     "web"
   ],
   "scripts": {
+    "db:up": "node scripts/ensure-db.mjs",
+    "predev:server": "npm run db:up",
     "dev:server": "npm run dev -w server",
     "dev:web": "npm run dev -w web",
-    "dev": "concurrently -k -n server,web -c blue,green \"npm run dev:server\" \"wait-on -t 60000 http://127.0.0.1:3000/api/health && npm run dev -w web -- --open\"",
+    "predev": "npm run db:up",
+    "dev": "concurrently -k -n server,web -c blue,green \"npm run dev -w server\" \"wait-on -t 60000 http://127.0.0.1:3000/api/health && npm run dev -w web -- --open\"",
     "test": "npm run test -w server && npm run test -w web",
     "build": "npm run build -w server && npm run build -w web"
   },
